@@ -42,7 +42,7 @@ class RidesPane extends StatelessWidget {
                 children:[
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text('Deine Fahrten', style: Theme.of(context).textTheme.labelLarge, textAlign: TextAlign.right),
+                    child: Text('Aufgezeichnete Wege', style: Theme.of(context).textTheme.labelLarge, textAlign: TextAlign.right),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
