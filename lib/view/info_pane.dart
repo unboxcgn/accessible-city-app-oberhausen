@@ -22,7 +22,7 @@ Die Stadtplanung bekommt dadurch Einblicke in die reale Wegenutzung und Probleme
           
 Die erhobenen Datensätze werden anonymisiert auf accessible-city.de veröffentlicht. Dadurch können sie von der Stadt Köln, anderen Menschen und Vereinen genutzt werden.
           
-„Bessere Radwege“ entsteht im Rahmen des Förderprojektes „un:box Cologne“ der Stadt Köln.
+„Accessible City“ entsteht im Rahmen des Förderprojektes „un:box Cologne“ der Stadt Köln.
           '''),
           const Image(image: AssetImage('assets/images/unbox_logo.png')),
           ElevatedButton(

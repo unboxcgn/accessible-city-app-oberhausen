@@ -1,4 +1,4 @@
-package de.bessereradwege.bessereradwege;
+package de.accessiblecity.accessiblecity;
 
 import io.flutter.embedding.android.FlutterActivity;
 

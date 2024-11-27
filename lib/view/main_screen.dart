@@ -75,8 +75,8 @@ class _MainScreenState extends State<MainScreen> {
         selectedIndex: _pageIndex,
         destinations: const <Widget>[
           NavigationDestination(
-              icon: Icon(Icons.directions_bike),
-              selectedIcon: Icon(Icons.directions_bike_outlined),
+              icon: Icon(Icons.directions),
+              selectedIcon: Icon(Icons.directions_outlined),
               label: "Wege"),
           NavigationDestination(
               icon: Icon(Icons.settings),
