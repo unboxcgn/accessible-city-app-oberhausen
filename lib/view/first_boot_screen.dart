@@ -49,13 +49,13 @@ class FirstBootScreen extends StatelessWidget {
               ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Text('Wir wollen mit Bewegungsdaten die Radwege in Köln analysieren und so bessere Wege für alle schaffen.',
+                child: Text('Wir wollen mit Bewegungsdaten die Wege von Menschen mit Mobilitätseinschränkungen in Köln analysieren und so bessere Wege für alle schaffen.',
                     style: Theme.of(context).textTheme.bodyMedium,
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Text('Dafür werden deine Bewegungsdaten und die Daten des Beschleunigungssensors auf dem Handy gesammelt und anonymisiert auf den Bessere-Radwege-Server hochgeladen.',
+                child: Text('Dafür werden deine Bewegungsdaten und die Daten des Beschleunigungssensors auf dem Handy gesammelt und anonymisiert auf den Accessible-City-Server hochgeladen.',
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
               ),

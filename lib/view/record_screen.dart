@@ -37,7 +37,7 @@ class RecordScreenState extends State<RecordScreen> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.record_screen.dart
-        title: const Text("Fahrtaufzeichnung"),
+        title: const Text("Wegeaufzeichnung"),
       ),
       body: Center(
         // Center is a layout widget. It takes a single child and positions it
@@ -96,11 +96,6 @@ class RecordScreenState extends State<RecordScreen> {
             VectorSourceProperties(url: _mapData.urlForMap(entry))
         );
       }
-/*      void doLater() async {
-        final pos = await Geolocator.getCurrentPosition();
-        logInfo('MapData: current position: ${pos.toString()}');
-      }
-      doLater(); */
     } else {
       logErr("MapData: Style loaded but no mapController!");
     }

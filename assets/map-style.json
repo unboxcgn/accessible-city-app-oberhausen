@@ -1,6 +1,6 @@
 {
   "version": 8,
-  "name": "Bessere Radwege",
+  "name": "Accessible City",
   "metadata": {"maputnik:renderer": "mbgljs"},
   "sources": {},
   "sprite": "",
@@ -371,24 +371,6 @@
         "line-width": {"base": 1, "stops": [[12, 0], [13, 1], [20, 5]]},
         "line-dasharray": [0.5, 2]
       }
-    },
-    {
-      "id": "road-path-bike",
-      "type": "line",
-      "source": "cologne",
-      "source-layer": "transportation",
-      "minzoom": 3,
-      "filter": [
-        "any",
-        ["==", "bicycle", "yes"],
-        ["==", "bicycle", "designated"]
-      ],
-      "layout": {
-        "line-cap": "round",
-        "line-join": "round",
-        "visibility": "visible"
-      },
-      "paint": {"line-color": "rgba(0, 252, 50, 1)", "line-width": 2}
     },
     {
       "id": "label-street-detail",

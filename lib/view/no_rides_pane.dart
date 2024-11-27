@@ -9,17 +9,17 @@ class NoRidesPane extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Text('Tracke deine Fahrten und verbessere die Radwege mit uns',
+            child: Text('Tracke deine Routen und verbessere die Wege mit uns',
                 style: Theme.of(context).textTheme.headlineLarge
             ),
           ),
           const Padding(
             padding: EdgeInsets.all(10.0),
-            child: Image(image: AssetImage('assets/images/fahrradkatze.gif'), ),
+            child: Image(image: AssetImage('assets/images/logo-transparent.png'), ),
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Text('Du hast noch keine Fahrten aufgenommen. Starte jetzt!',
+            child: Text('Du hast noch keine Wege aufgenommen. Starte jetzt!',
                 style: Theme.of(context).textTheme.bodyMedium),
           ),
         ],

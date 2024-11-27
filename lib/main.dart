@@ -59,17 +59,17 @@ class MyAppState extends State<MyApp> {
           )
       );
     } else if (Provider.of<User>(context).firstStart) {
-      contents = const FirstBootScreen(title: 'Bessere Radwege');
+      contents = const FirstBootScreen(title: 'Accessible City');
     } else {
-      contents = const MainScreen(title: 'Bessere Radwege');
+      contents = const MainScreen(title: 'Accessible City');
     }
 
     return ToastificationWrapper(
       child: MaterialApp(
-        title: 'Bessere Radwege',
+        title: 'Accessible City',
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(
-            seedColor: Colors.tealAccent,
+            seedColor: Colors.purple.shade200,
           ),
           useMaterial3: true,
         ),

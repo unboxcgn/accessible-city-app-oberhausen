@@ -14,13 +14,13 @@ class InfoPane extends StatelessWidget {
           Text('Über das Projekt', style: Theme.of(context).textTheme.titleLarge),
           const Text('''
           
-Unser Plan: Wir sammeln und analysieren Bewegungsdaten von und mit Radfahrenden automatisch bei jeder Fahrt. Die daraus gewonnenen Informationen sollen helfen, die Fahrradinfrastruktur in Köln zu verbessern.
+Unser Plan: Wir sammeln und analysieren Bewegungsdaten von Menschen mit Bewegungseinschränkungen automatisch bei jedem Weg. Die daraus gewonnenen Informationen sollen helfen, Mobilitätsbarrieren in Köln zu reduzieren.
           
-Durch automatische Analyse der Fahrtdaten werden Umwege, schlechte Untergründe und Gefahrenstellen erkannt. Die ausgewerteten Informationen stehen anonymisiert im Internet bereit und sind als offene Daten für alle Interessierte nutzbar.
+Durch automatische Analyse der Wegedaten werden Umwege, schlechte Untergründe und Gefahrenstellen erkannt. Die ausgewerteten Informationen stehen anonymisiert im Internet bereit und sind als offene Daten für alle Interessierte nutzbar.
           
-Die Stadtplanung bekommt dadurch Einblicke in die reale Wegenutzung und Probleme von Radfahrenden und kann so bessere Wege für alle schaffen.
+Die Stadtplanung bekommt dadurch Einblicke in die reale Wegenutzung und Probleme von bewegungseingeschränkten Menschen und kann so bessere Wege für alle schaffen.
           
-Die erhobenen Datensätze werden anonymisiert auf Open Data Cologne veröffentlicht. Dadurch können sie von der Stadt Köln, anderen Menschen und Vereinen genutzt werden.
+Die erhobenen Datensätze werden anonymisiert auf accessible-city.de veröffentlicht. Dadurch können sie von der Stadt Köln, anderen Menschen und Vereinen genutzt werden.
           
 „Bessere Radwege“ entsteht im Rahmen des Förderprojektes „un:box Cologne“ der Stadt Köln.
           '''),
@@ -29,12 +29,12 @@ Die erhobenen Datensätze werden anonymisiert auf Open Data Cologne veröffentli
             style: ElevatedButton.styleFrom(
               backgroundColor: Theme.of(context).colorScheme.primaryContainer,
             ),
-            onPressed: () { launchUrl(Uri.parse('https://www.bessere-radwege.de')); },
-            child: const Text("www.bessere-radwege.de"),
+            onPressed: () { launchUrl(Uri.parse('https://www.accessible-city.de')); },
+            child: const Text("www.accessible-city.de"),
           ),
           Padding(
             padding: const EdgeInsets.all(10.0),
-            child: Center(child: Text('App version 0.1.1, build 2024-11-26-23-07-30', style: Theme.of(context).textTheme.bodyMedium)),
+            child: Center(child: Text('App version 0.1, build 2024-11-27-16-30-00', style: Theme.of(context).textTheme.bodyMedium)),
           ),
         ],
       ),

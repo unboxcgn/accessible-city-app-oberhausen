@@ -77,7 +77,7 @@ class _MainScreenState extends State<MainScreen> {
           NavigationDestination(
               icon: Icon(Icons.directions_bike),
               selectedIcon: Icon(Icons.directions_bike_outlined),
-              label: "Fahrten"),
+              label: "Wege"),
           NavigationDestination(
               icon: Icon(Icons.settings),
               selectedIcon: Icon(Icons.settings_outlined),

@@ -17,7 +17,7 @@ class SettingsPane extends StatelessWidget {
           const Padding(
               padding: EdgeInsets.only(
                   top: 30, left: 10, right: 10, bottom: 10),
-              child: Text("Standard-Fahrradtyp:")),
+              child: Text("Standard-Rollstuhltyp:")),
           Padding(
               padding: const EdgeInsets.all(10),
               child: DropdownButton<int>(
@@ -54,7 +54,7 @@ class SettingsPane extends StatelessWidget {
           const Padding(
               padding: EdgeInsets.only(
                   top: 30, left: 10, right: 10, bottom: 10),
-              child: Text("Standard-Fahrtentyp:")),
+              child: Text("Standard-Wegetyp:")),
           Padding(
             padding: const EdgeInsets.all(10),
             child: DropdownButton<int>(
@@ -73,7 +73,7 @@ class SettingsPane extends StatelessWidget {
           const Padding(
               padding: EdgeInsets.only(
                   top: 30, left: 10, right: 10, bottom: 10),
-              child: Text("Fahrtkommentar:"),
+              child: Text("Wegkommentar:"),
           ),
           Padding(
               padding: const EdgeInsets.only(
