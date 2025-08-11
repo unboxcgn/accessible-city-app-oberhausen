@@ -4,7 +4,6 @@ import '../logger.dart';
 import '../services/sensor_service.dart';
 import 'package:flutter/widgets.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:toastification/toastification.dart';
 
 class Rides extends ChangeNotifier {
 
@@ -31,25 +30,19 @@ class Rides extends ChangeNotifier {
     await _dbLoadRides();
   }
 
-  void startRide() {
-    logInfo("startride");
-    if (_currentRide == null) {
-      SensorService().checkPermissions().then((ok) {
-        logInfo("permissions ok: $ok");
-        if (ok) {
-          _currentRide = RunningRide();
-          SensorService().startRecording(_currentRide!).then((ok) {
-            if (ok) {
-              notifyListeners();
-              logInfo("started ride");
-            } else {
-              _currentRide = null;
-              _showPrivilegesMessage();
-            }
-          });
-        }
-      });
+  Future<bool> startRide() async {
+    if (_currentRide != null) return false;
+    final permissionsOk = await SensorService().checkPermissions();
+    if (!permissionsOk) return false;
+    _currentRide = RunningRide();
+    final startOk = await SensorService().startRecording(_currentRide!);
+    if (!startOk) {
+      _currentRide = null;
+      return false;
     }
+    logInfo("started ride");
+    notifyListeners();
+    return true;
   }
 
   Future<void> finishCurrentRide() async {
@@ -125,15 +118,4 @@ class Rides extends ChangeNotifier {
     notifyListeners();
   }
 
-  void _showPrivilegesMessage() {
-    toastification.show(
-      type: ToastificationType.error,
-      style: ToastificationStyle.flat,
-      title: const Text("Berechtigungen korrigieren"),
-      description: const Text(
-          "Bitte Standortberechtigungen für diese App auf 'immer' stellen."),
-      alignment: Alignment.topLeft,
-      autoCloseDuration: const Duration(seconds: 5),
-    );
-  }
 }

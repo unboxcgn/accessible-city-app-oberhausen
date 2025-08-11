@@ -8,6 +8,7 @@ import '../model/rides.dart';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:app_settings/app_settings.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key, required this.title});
@@ -89,10 +90,37 @@ class _MainScreenState extends State<MainScreen> {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-          onPressed: () {Provider.of<Rides>(context, listen: false).startRide();},
+          onPressed: () {
+            Provider.of<Rides>(context, listen: false).startRide().then((ok) {
+              if (!ok) showAdaptiveDialog(context: context, builder: startRideFailedAlert);
+            });
+          },
           label: const Text(Constants.startRecording),
           icon: const Icon(Icons.play_arrow),
       )
     );
   }
+}
+
+Widget startRideFailedAlert(BuildContext context) {
+  return AlertDialog.adaptive(
+      title: const Text("Aufzeichnung fehlgeschlagen"),
+      content: const Text("Bitte aktiviere Standortdienste und setze die Berechtigung dieser App auf 'immer erlauben'"),
+      actions: <Widget>[
+        TextButton(
+            child: const Text('Einstellungen...'),
+            onPressed: (){
+              AppSettings.openAppSettings(type: AppSettingsType.location).then((_) {
+                Navigator.of(context).pop();
+              });
+            }
+        ),
+        TextButton(
+          child: const Text('OK'),
+          onPressed: (){
+            Navigator.of(context).pop();
+          },
+        ),
+      ]
+  );
 }

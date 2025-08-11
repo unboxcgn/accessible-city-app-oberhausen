@@ -7,7 +7,6 @@ import 'view/main_screen.dart';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:toastification/toastification.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -64,8 +63,7 @@ class MyAppState extends State<MyApp> {
       contents = const MainScreen(title: 'Accessible City');
     }
 
-    return ToastificationWrapper(
-      child: MaterialApp(
+    return MaterialApp(
         title: 'Accessible City',
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(
@@ -74,7 +72,6 @@ class MyAppState extends State<MyApp> {
           useMaterial3: true,
         ),
         home: contents,
-      )
     );
   }
 }

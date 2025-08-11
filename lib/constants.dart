@@ -7,7 +7,7 @@ class Constants {
   static const String eveningRide = "Weg am Abend";
   static const String nightRide = "Weg in der Nacht";
   static const String longRide = "Langer Weg";
-  static const String startRecording = "Weg aufzeichnens";
+  static const String startRecording = "Weg aufzeichnen";
   static const String endRecording = "Weg beenden";
 
   static const double minMotionMperS = 0.8;
