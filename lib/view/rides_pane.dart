@@ -130,13 +130,14 @@ class RideDigestView extends StatelessWidget {
 
   @override Widget build(BuildContext context) {
     String twoDigits(int n) => n.toString().padLeft(2, "0");
+    final colorScheme = Theme.of(context).colorScheme;
     final durH = _ride.recordingDuration.inHours.toString();
     final durM = twoDigits(_ride.recordingDuration.inMinutes.remainder(60).abs());
     final durS = twoDigits(_ride.recordingDuration.inSeconds.remainder(60).abs());
     final dur = '$durH:$durM:$durS';
 
     return Container(
-      color:Colors.tealAccent,
+      color:colorScheme.inversePrimary, //Colors.tealAccent, //colorScheme.primaryContainer
           child: Center (
               child: Column(
                   children: [

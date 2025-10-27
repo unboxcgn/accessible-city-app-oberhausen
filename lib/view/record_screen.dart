@@ -3,7 +3,7 @@ import '../constants.dart';
 import '../services/sensor_service.dart';
 import '../model/rides.dart';
 import '../model/map_data.dart';
-
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
@@ -20,6 +20,7 @@ class RecordScreenState extends State<RecordScreen> {
 
   MapLibreMapController? _mapController;
   final MapData _mapData = MapData();
+//  bool _trackUserLocation = false;
 
   @override
   void initState() {
@@ -27,8 +28,16 @@ class RecordScreenState extends State<RecordScreen> {
     SensorService().checkPermissions();
   }
 
+  void dumpFile(path) async {
+    File f = File(path);
+    String s = await f.readAsString();
+    logInfo("dump of $path: $s");
+  }
+
   @override
   Widget build(BuildContext context) {
+    logInfo("recordscreen build: style JSON is ${_mapData.styleJsonPath}");
+    dumpFile(_mapData.styleJsonPath);
     return Scaffold(
       appBar: AppBar(
         // TRY THIS: Try changing the color here to a specific color (to
@@ -45,6 +54,10 @@ class RecordScreenState extends State<RecordScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children:[
+/*            TextButton(
+              child: Text("Toggle track location"),
+              onPressed: toggleLocationTracking
+            ), */
             Expanded(
               child:MapLibreMap(
                 styleString: _mapData.styleJsonPath,
@@ -55,9 +68,14 @@ class RecordScreenState extends State<RecordScreen> {
                 rotateGesturesEnabled: true,
                 dragEnabled: true,
                 myLocationEnabled: true,
+                onUserLocationUpdated: _userLocationUpdated,
                 compassEnabled: true,
-                myLocationTrackingMode: MyLocationTrackingMode.tracking,
+                myLocationTrackingMode: MyLocationTrackingMode.trackingGps,
+                myLocationRenderMode: MyLocationRenderMode.compass,
                 onStyleLoadedCallback: onStyleLoadedCallback,
+                doubleClickZoomEnabled: false,
+                scrollGesturesEnabled: true,
+                minMaxZoomPreference: const MinMaxZoomPreference(10,20),
               )
             ),
             Align(
@@ -69,9 +87,12 @@ class RecordScreenState extends State<RecordScreen> {
                 onDoubleTap: () => launchUrl(Uri.parse('https://openstreetmap.org/copyright'))
               ),
             ),
-            ElevatedButton(
-              onPressed: () {Provider.of<Rides>(context, listen: false).finishCurrentRide(); },
-              child: const Text(Constants.endRecording),
+            Padding(
+              padding: const EdgeInsets.only(bottom:20.0),
+              child: ElevatedButton(
+                onPressed: () {Provider.of<Rides>(context, listen: false).finishCurrentRide(); },
+                child: const Text(Constants.endRecording),
+              )
             )
           ],
         ),
@@ -79,6 +100,22 @@ class RecordScreenState extends State<RecordScreen> {
 
     );
   }
+  void toggleLocationTracking() {
+/*    setState(() {
+      _trackUserLocation = !_trackUserLocation;
+    });
+*/
+  }
+
+  void _userLocationUpdated(UserLocation location) {
+/*    if (_trackUserLocation) {
+      if (_mapController != null) {
+        final zoom = _mapController!.cameraPosition!.zoom;
+        _mapController!.animateCamera(CameraUpdate.newCameraPosition(
+            CameraPosition(target: location.position, zoom: zoom)));
+      }
+    }
+*/}
 
   void _onMapCreated(MapLibreMapController controller) {
     _mapController = controller;

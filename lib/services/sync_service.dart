@@ -49,7 +49,7 @@ class SyncService {
 
   /// a network action failed. Do exponential backoff
   void _syncActivityFailed() {
-    _interval = ((_interval * 3) / 2) as int;
+    _interval = (((_interval * 3) / 2) + 0.5).floor();
     if (_interval > Constants.maxSyncIntervalMS) {
       _interval = Constants.maxSyncIntervalMS;
     }

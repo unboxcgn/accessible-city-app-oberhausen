@@ -111,7 +111,7 @@ class Rides extends ChangeNotifier {
 
   Future<void> _dbLoadRides() async {
     final rides = await _database.query('ride', orderBy: 'startDate');
-    logInfo("DATABASE: Loading rides $rides");
+//    logInfo("DATABASE: Loading rides $rides");
     for (final rideMap in rides) {
       _pastRides.add(FinishedRide.fromDbEntry(_database, rideMap));
     }
