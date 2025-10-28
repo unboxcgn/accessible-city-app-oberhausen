@@ -9,6 +9,10 @@ class Constants {
   static const String longRide = "Langer Weg";
   static const String startRecording = "Weg aufzeichnen";
   static const String endRecording = "Weg beenden";
+  static const String recording = "Wegeaufzeichnung";
+  static const String annotation = "Annotation";
+  static const String trackLocation = "Zentrieren";
+  static const String mapAttribution = "OpenStreetMap 2024, 2025";
 
   static const double minMotionMperS = 0.8;
   static const int locationDistanceFilterM = 2;
