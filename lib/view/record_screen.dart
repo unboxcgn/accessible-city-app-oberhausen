@@ -5,7 +5,6 @@ import '../constants.dart';
 import '../services/sensor_service.dart';
 import '../model/rides.dart';
 import '../model/map_data.dart';
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
@@ -23,6 +22,7 @@ class RecordScreenState extends State<RecordScreen> {
   final _controllerCompleter = Completer<MapLibreMapController>();
   final MapData _mapData = MapData();
   bool _trackUserLocation = true;
+  UserLocation? _lastUserLocation;
 
   @override
   void initState() {
@@ -57,19 +57,19 @@ class RecordScreenState extends State<RecordScreen> {
               child:MapLibreMap(
                 styleString: _mapData.styleJsonPath,
                 onMapCreated: _mapCreated,
-                initialCameraPosition: const CameraPosition(target: LatLng(50.9365, 6.9398), zoom: 16.0),
-                zoomGesturesEnabled: true,
-                trackCameraPosition: true,
-                rotateGesturesEnabled: true,
-                dragEnabled: true,
-                myLocationEnabled: true,
                 onUserLocationUpdated: _userLocationUpdated,
+                onStyleLoadedCallback: _styleLoaded,
+                initialCameraPosition: const CameraPosition(target: LatLng(50.9365, 6.9398), zoom: 16.0),
+                trackCameraPosition: false,
+                zoomGesturesEnabled: true,
+                rotateGesturesEnabled: true,
+                dragEnabled: false,
+                myLocationEnabled: true,
                 compassEnabled: true,
                 myLocationTrackingMode: MyLocationTrackingMode.none,
                 myLocationRenderMode: MyLocationRenderMode.normal,
-                onStyleLoadedCallback: _styleLoaded,
                 doubleClickZoomEnabled: false,
-                scrollGesturesEnabled: true,
+                scrollGesturesEnabled: !_trackUserLocation,
                 minMaxZoomPreference: const MinMaxZoomPreference(10,20),
               )
             ),
@@ -94,7 +94,7 @@ class RecordScreenState extends State<RecordScreen> {
                         child: Column(
                           children: [
                             Icon(Icons.center_focus_strong, color: _trackUserLocation ? Theme.of(context).colorScheme.primary: Colors.grey),
-                            Text(Constants.trackLocation),
+                            const Text(Constants.trackLocation),
                           ],
                         )
                     ),
@@ -105,7 +105,7 @@ class RecordScreenState extends State<RecordScreen> {
                         onPressed: () {
                           showAdaptiveDialog(context: context, builder: _addAnnotationDialog);
                         },
-                        child: Column(
+                        child: const Column(
                           children: [
                             Icon(Icons.comment),
                             Text(Constants.annotation),
@@ -117,7 +117,7 @@ class RecordScreenState extends State<RecordScreen> {
                     padding: const EdgeInsets.all(2.0),
                     child: TextButton(
                         onPressed: () {Provider.of<Rides>(context, listen: false).finishCurrentRide();},
-                        child: Column(
+                        child: const Column(
                           children: [
                             Icon(Icons.stop_circle),
                             Text(Constants.endRecording),
@@ -165,15 +165,29 @@ class RecordScreenState extends State<RecordScreen> {
       _trackUserLocation = !_trackUserLocation;
       logInfo("trackUserLocation set to $_trackUserLocation");
     });
+    if (_trackUserLocation) {
+      if (_lastUserLocation != null) {
+        _userLocationUpdated(_lastUserLocation!);
+      }
+
+    }
   }
 
   void _userLocationUpdated(UserLocation location) async {
+    _lastUserLocation = location;
     if (_trackUserLocation) {
-      final _mapController = await _controllerCompleter.future;
-      final zoom = _mapController.cameraPosition!.zoom;
-      final bearing = _mapController.cameraPosition!.bearing;
-      _mapController.animateCamera(CameraUpdate.newCameraPosition(
-          CameraPosition(target: location.position, zoom: zoom, bearing: bearing))
+      final mapController = await _controllerCompleter.future;
+
+      double zoom = 16.0;
+      double bearing = 0;
+      final pos = mapController.cameraPosition;
+      if (pos != null) {
+        zoom = pos!.zoom;
+        bearing = pos!.bearing;
+      }
+      logInfo("going to location ${location.position}");
+      mapController.animateCamera(CameraUpdate.newCameraPosition(
+        CameraPosition(target: location.position, zoom: zoom, bearing: bearing))
       );
     }
   }
@@ -185,12 +199,12 @@ class RecordScreenState extends State<RecordScreen> {
 
   void _styleLoaded() async {
     logInfo("MapData: style loaded!");
-    final _mapController = await _controllerCompleter.future;
+    final mapController = await _controllerCompleter.future;
     List<String> maps = _mapData.loadedMaps;
     logInfo('MapData: loaded maps length ${maps.length}');
     for (final entry in maps) {
       logInfo('MapData: adding source $entry -> ${_mapData.urlForMap(entry)}');
-      _mapController.addSource(entry,
+      mapController.addSource(entry,
         VectorSourceProperties(url: _mapData.urlForMap(entry))
       );
     }
