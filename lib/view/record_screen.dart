@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:accessiblecity/enums.dart';
+
 import '../logger.dart';
 import '../constants.dart';
 import '../services/sensor_service.dart';
@@ -47,6 +49,7 @@ class RecordScreenState extends State<RecordScreen> {
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children:[
 /*            TextButton(
@@ -103,7 +106,7 @@ class RecordScreenState extends State<RecordScreen> {
                     padding: const EdgeInsets.all(2.0),
                     child: TextButton(
                         onPressed: () {
-                          showAdaptiveDialog(context: context, builder: _addAnnotationDialog);
+                          showAdaptiveDialog(context: context, builder: _annotationDialogBuilder);
                         },
                         child: const Column(
                           children: [
@@ -134,31 +137,6 @@ class RecordScreenState extends State<RecordScreen> {
     );
   }
 
-  Widget _addAnnotationDialog(BuildContext context) {
-    return AlertDialog.adaptive(
-      title: const Text("Annotieren"),
-      content: const TextField(
-        decoration: InputDecoration(
-          prefixIcon: Icon(Icons.search),
-          suffixIcon: Icon(Icons.clear),
-          labelText: 'Was ist hier?',
-          hintText: 'Beschreibung',
-          helperText: 'Kurze Beschreibung des Problems',
-          filled: true,
-        ),
-      ),
-      actions: <Widget>[
-        TextButton(
-          child: const Text('Abbrechen'),
-          onPressed: () { Navigator.of(context).pop(); }
-        ),
-        TextButton(
-          child: const Text('OK'),
-          onPressed: () { Navigator.of(context).pop(); },
-        ),
-      ]
-    );
-  }
 
   void _toggleLocationTracking() {
     setState(() {
@@ -182,8 +160,8 @@ class RecordScreenState extends State<RecordScreen> {
       double bearing = 0;
       final pos = mapController.cameraPosition;
       if (pos != null) {
-        zoom = pos!.zoom;
-        bearing = pos!.bearing;
+        zoom = pos.zoom;
+        bearing = pos.bearing;
       }
       logInfo("going to location ${location.position}");
       mapController.animateCamera(CameraUpdate.newCameraPosition(
@@ -210,6 +188,138 @@ class RecordScreenState extends State<RecordScreen> {
     }
   }
 
+  Widget _annotationDialogBuilder(BuildContext context) {
+    TextEditingController textEditingController = TextEditingController();
+    Set<AnnotationTag> tags = Set();
+    int severity = 50;
+
+    return StatefulBuilder(
+       builder: (context, setState) {
+        final offButtonStyle = ButtonStyle(
+          minimumSize: WidgetStatePropertyAll(Size(35,35)),
+          textStyle: WidgetStatePropertyAll(TextTheme.of(context).labelSmall),
+          padding: WidgetStatePropertyAll(EdgeInsets.only(left: 5, right: 5)),
+          shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadiusDirectional.all(Radius.circular(10)))),
+          side: WidgetStatePropertyAll(BorderSide(color: Colors.black12))
+        );
+
+        final onButtonStyle = ButtonStyle(
+          minimumSize: WidgetStatePropertyAll(Size(35,35)),
+          textStyle: WidgetStatePropertyAll(TextTheme.of(context).labelSmall),
+          padding: WidgetStatePropertyAll(EdgeInsets.only(left: 5, right: 5)),
+          shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadiusDirectional.all(Radius.circular(10)))),
+          backgroundColor: WidgetStateColor.resolveWith((_) {return Theme.of(context).colorScheme.primaryContainer;}),
+          side: WidgetStatePropertyAll(BorderSide(color: Colors.black54))
+        );
+
+        final emojiButtonStyle = ButtonStyle(
+            textStyle: WidgetStatePropertyAll(TextTheme.of(context).titleMedium),
+            padding: WidgetStatePropertyAll(EdgeInsets.all(3)),
+            minimumSize: WidgetStatePropertyAll(Size(30,30)),
+        );
+
+        final emojiButtonOnStyle = ButtonStyle(
+            textStyle: WidgetStatePropertyAll(TextTheme.of(context).titleMedium),
+            padding: WidgetStatePropertyAll(EdgeInsets.all(3)),
+            minimumSize: WidgetStatePropertyAll(Size(30,30)),
+            side: WidgetStatePropertyAll(BorderSide(width: 2, color: Theme.of(context).colorScheme.inversePrimary))
+        );
+
+        List<Widget> tagButtons = [];
+        for (final anno in AnnotationTag.values) {
+          final button = OutlinedButton(
+            onPressed: () {
+              if (tags.contains(anno)) {
+                logInfo("tags: removing $anno");
+                setState(() { tags.remove(anno); });
+              } else {
+                logInfo("tags: removing $anno");
+                setState(() { tags.add(anno); });
+              }
+              logInfo("tags: tags is $tags");
+            },
+            style: tags.contains(anno) ? onButtonStyle : offButtonStyle, child: Text(anno.label)
+          );
+          tagButtons.add(button);
+        }
+
+        return AlertDialog.adaptive(
+          title: const Text("Was ist hier?"),
+          content: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Wrap(
+                crossAxisAlignment: WrapCrossAlignment.start,
+                spacing:5,
+                runSpacing: 0,
+                alignment: WrapAlignment.start,
+                children: tagButtons
+              ),
+              Padding(
+                padding: EdgeInsets.only(top:10),
+                child: Text("Wie schlimm?",
+                  style: TextTheme.of(context).titleMedium,
+                ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  TextButton(
+                    onPressed: (){ setState((){ severity = 0; }); },
+                    style: severity == 0 ? emojiButtonOnStyle : emojiButtonStyle,
+                    child:Text("${String.fromCharCode(128528)}"),
+                  ),
+                  TextButton(
+                    onPressed: (){ setState((){ severity = 25; }); },
+                    style: severity == 25 ? emojiButtonOnStyle : emojiButtonStyle,
+                    child:Text("${String.fromCharCode(128533)}"),
+                  ),
+                  TextButton(
+                    onPressed: (){ setState((){ severity = 50; }); },
+                    style: severity == 50 ? emojiButtonOnStyle : emojiButtonStyle,
+                    child:Text("${String.fromCharCode(128530)}"),
+                  ),
+                  TextButton(
+                    onPressed: (){ setState((){ severity = 75; }); },
+                    style: severity == 75 ? emojiButtonOnStyle : emojiButtonStyle,
+                    child:Text("${String.fromCharCode(128534)}"),
+                  ),
+                  TextButton(
+                    onPressed: (){ setState((){ severity = 100; }); },
+                    style: severity == 100 ? emojiButtonOnStyle : emojiButtonStyle,
+                    child:Text("${String.fromCharCode(128545)}"),
+                  ),
+                ],
+              ),
+              TextField(
+                controller: textEditingController,
+                decoration: InputDecoration(
+                  prefixIcon: Icon(Icons.warning),
+                  labelText: 'Beschreibung',
+                  helperText: 'Kurze Beschreibung (optional)',
+                  filled: true,
+                ),
+              ),
+
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Abbrechen'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              }
+            ),
+            TextButton(
+              child: const Text('Speichern und weiter'),
+              onPressed: () {
+                logInfo('annotation text ${textEditingController.text} tags ${tags}');
+                Navigator.of(context).pop();
+              }
+            ),
+          ],
+        );
+      }
+    );
+  }
 }
-
-

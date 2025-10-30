@@ -50,6 +50,25 @@ enum MountType {
   final int value;
 }
 
+enum AnnotationTag {
+  obstruction(label: "Weg versperrt", value: "#obstruction"),
+  narrow(label: "Engstelle", value: "#narrow"),
+  damage(label: "Straßenschäden", value: "#damage"),
+  dirt(label: "Schnee/Laub/Scherben", value: "#dirt"),
+  noramp(label: "Kante / keine Rampe", value: "#noramp"),
+  wait(label: "Wartezeit", value: "#wait"),
+  elevator(label: "Aufzug defekt", value: "#elevator"),
+  other(label: "Anderes", value: "#other");
+
+  const AnnotationTag({
+    required this.label,
+    required this.value
+  });
+
+  final String label;
+  final String value;
+}
+
 VehicleType vehicleTypeByValue(int value) {
   for (VehicleType t in VehicleType.values) {
     if (t.value == value) {
@@ -75,6 +94,15 @@ MountType mountTypeByValue(int value) {
     }
   }
   return MountType.unknown;
+}
+
+AnnotationTag annotationTagByValue(String value) {
+  for (AnnotationTag t in AnnotationTag.values) {
+    if (t.value == value) {
+      return t;
+    }
+  }
+  return AnnotationTag.other;
 }
 
 
