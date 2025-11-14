@@ -158,7 +158,7 @@ class SyncService {
 
   Future<bool> _deleteRide(FinishedRide ride) async {
     logInfo("performing delete");
-    final ridedata = ride.toAnonymousJson(withLocations: false, withAnnotations: true);
+    final ridedata = ride.toAnonymousJson(withLocations: false, withAnnotations: false);
     ridedata['action'] = "DELETE";
     final ridedataJson = jsonEncode(ridedata);
     final signature = ride.sign(ridedataJson);
