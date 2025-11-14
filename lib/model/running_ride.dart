@@ -1,4 +1,6 @@
 
+import 'package:accessiblecity/model/annotation.dart';
+
 import 'location.dart';
 import '../constants.dart';
 import 'package:flutter/foundation.dart';
@@ -6,7 +8,8 @@ import 'package:flutter/foundation.dart';
 class RunningRide extends ChangeNotifier {
   final DateTime _startDate = DateTime.now();
   DateTime? _endDate;
-  final List<Location> _locations = []; //empty means not loaded or no locations found. See if we need to save a ride without locations.
+  final List<Location> _locations = [];
+  final List<Annotation> _annotations = [];
   bool _statsValid = false;
   double _distM = 0.0;
   double _motionDistM = 0.0;
@@ -17,6 +20,7 @@ class RunningRide extends ChangeNotifier {
   DateTime get startDate => _startDate;
   DateTime? get endDate => _endDate;
   List<Location> get locations => _locations;
+  List<Annotation> get annotations => _annotations;
 
   RunningRide();
 
@@ -28,6 +32,15 @@ class RunningRide extends ChangeNotifier {
     _locations.add(l);
     _statsValid = false;
     notifyListeners();
+  }
+
+  Location? getLastLocation() {
+    if (_locations.isEmpty) return null;
+    return _locations.last;
+  }
+
+  void addAnnotation(Annotation annotation) {
+    _annotations.add(annotation);
   }
 
   void finish() {

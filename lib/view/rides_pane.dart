@@ -110,7 +110,7 @@ class RidesPane extends StatelessWidget {
             padding: const EdgeInsets.all(8),
             itemCount: rides.length,
             shrinkWrap: true,
-            itemBuilder: (BuildContext context, int index) => RideDigestView(rides[index]),
+            itemBuilder: (BuildContext context, int index) => RideDigestView(rides[rides.length-index-1]),  //reverse!
             separatorBuilder: (BuildContext context, int index) => const Divider(),
             physics: const NeverScrollableScrollPhysics(),
         ),
@@ -135,7 +135,7 @@ class RideDigestView extends StatelessWidget {
     final durM = twoDigits(_ride.recordingDuration.inMinutes.remainder(60).abs());
     final durS = twoDigits(_ride.recordingDuration.inSeconds.remainder(60).abs());
     final dur = '$durH:$durM:$durS';
-
+    final title = (_ride.annotations.isNotEmpty) ? "${_ride.name} *" : _ride.name;
     return Container(
       color:colorScheme.inversePrimary, //Colors.tealAccent, //colorScheme.primaryContainer
           child: Center (
@@ -144,7 +144,7 @@ class RideDigestView extends StatelessWidget {
                     Row(
                       children:[
                         Expanded(
-                          child: Text(_ride.name, style: Theme.of(context).textTheme.titleLarge),
+                          child: Text(title, style: Theme.of(context).textTheme.titleLarge),
                         ),
                         PopupMenuButton(
                           itemBuilder: _buildRideMenu,

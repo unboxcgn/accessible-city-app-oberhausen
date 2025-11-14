@@ -14,17 +14,23 @@ class InfoPane extends StatelessWidget {
           Text('Über das Projekt', style: Theme.of(context).textTheme.titleLarge),
           const Text('''
           
-Unser Plan: Wir sammeln und analysieren Bewegungsdaten von Menschen mit Bewegungseinschränkungen automatisch bei jedem Weg. Die daraus gewonnenen Informationen sollen helfen, Mobilitätsbarrieren in Köln zu reduzieren.
+Unser Plan: Wir sammeln und analysieren Bewegungsdaten von Menschen mit Bewegungseinschränkungen automatisch bei jedem Weg. Die daraus gewonnenen Informationen sollen helfen, Mobilitätsbarrieren in Städten zu reduzieren.
           
 Durch automatische Analyse der Wegedaten werden Umwege, schlechte Untergründe und Gefahrenstellen erkannt. Die ausgewerteten Informationen stehen anonymisiert im Internet bereit und sind als offene Daten für alle Interessierte nutzbar.
           
 Die Stadtplanung bekommt dadurch Einblicke in die reale Wegenutzung und Probleme von bewegungseingeschränkten Menschen und kann so bessere Wege für alle schaffen.
           
-Die erhobenen Datensätze werden anonymisiert auf accessible-city.de veröffentlicht. Dadurch können sie von der Stadt Köln, anderen Menschen und Vereinen genutzt werden.
+Die erhobenen Datensätze werden anonymisiert auf accessible-city.de veröffentlicht. Dadurch können sie von Städten, anderen Menschen und Vereinen genutzt werden.
           
-„Accessible City“ entsteht im Rahmen des Förderprojektes „un:box Cologne“ der Stadt Köln.
+„Accessible City“ wird von den Förderprojekten „Co-Creation-Fund“ der Stadt Oberhausen und „un:box Cologne“ der Stadt Köln unterstützt.
           '''),
-          const Image(image: AssetImage('assets/images/unbox_logo.png')),
+          const Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(child: Image(image: AssetImage('assets/images/unbox_logo.png'))),
+              Expanded(child: Image(image: AssetImage('assets/images/smart-city-ob.jpg'))),
+            ],
+          ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: Theme.of(context).colorScheme.primaryContainer,
@@ -34,7 +40,7 @@ Die erhobenen Datensätze werden anonymisiert auf accessible-city.de veröffentl
           ),
           Padding(
             padding: const EdgeInsets.all(10.0),
-            child: Center(child: Text('App version 0.1.1, build 2025-08-11-23-30-00', style: Theme.of(context).textTheme.bodyMedium)),
+            child: Center(child: Text('App version 0.2.1, build 2025-11-14-02-30-00', style: Theme.of(context).textTheme.bodyMedium)),
           ),
         ],
       ),

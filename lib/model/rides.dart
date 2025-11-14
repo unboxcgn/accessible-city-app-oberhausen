@@ -5,6 +5,8 @@ import '../services/sensor_service.dart';
 import 'package:flutter/widgets.dart';
 import 'package:sqflite/sqflite.dart';
 
+const dbVersion = 2;
+
 class Rides extends ChangeNotifier {
 
   static Rides? _sharedRides;
@@ -15,7 +17,6 @@ class Rides extends ChangeNotifier {
   }
 
   Rides._internal();
-
 
   RunningRide? _currentRide;
   final List<FinishedRide> _pastRides = [];
@@ -106,6 +107,19 @@ class Rides extends ChangeNotifier {
         'headingAccuracy REAL,'
         'speed REAL,'
         'speedAccuracy REAL'
+        ')');
+    await db.execute('CREATE TABLE annotation('
+        'id INTEGER PRIMARY KEY AUTOINCREMENT,'
+        'rideId INTEGER,'
+        'severity INTEGER,'
+        'tags TEXT,'
+        'comment TEXT,'
+        'timestamp REAL,'
+        'latitude REAL,'
+        'longitude REAL,'
+        'accuracy REAL,'
+        'altitude REAL,'
+        'altitudeAccuracy REAL'
         ')');
   }
 

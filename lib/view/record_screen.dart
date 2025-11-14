@@ -1,12 +1,15 @@
 import 'dart:async';
 
 import 'package:accessiblecity/enums.dart';
+import 'package:accessiblecity/model/running_ride.dart';
 
 import '../logger.dart';
 import '../constants.dart';
 import '../services/sensor_service.dart';
 import '../model/rides.dart';
 import '../model/map_data.dart';
+import '../model/location.dart';
+import '../model/annotation.dart' as ride_annotation;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
@@ -106,7 +109,10 @@ class RecordScreenState extends State<RecordScreen> {
                     padding: const EdgeInsets.all(2.0),
                     child: TextButton(
                         onPressed: () {
-                          showAdaptiveDialog(context: context, builder: _annotationDialogBuilder);
+
+                          if (Provider.of<Rides>(context, listen: false).currentRide?.getLastLocation() != null) {
+                            showAdaptiveDialog(context: context, builder: _annotationDialogBuilder);
+                          }
                         },
                         child: const Column(
                           children: [
@@ -190,38 +196,38 @@ class RecordScreenState extends State<RecordScreen> {
 
   Widget _annotationDialogBuilder(BuildContext context) {
     TextEditingController textEditingController = TextEditingController();
-    Set<AnnotationTag> tags = Set();
+    Set<AnnotationTag> tags = {};
     int severity = 50;
 
     return StatefulBuilder(
        builder: (context, setState) {
         final offButtonStyle = ButtonStyle(
-          minimumSize: WidgetStatePropertyAll(Size(35,35)),
+          minimumSize: const WidgetStatePropertyAll(Size(35,35)),
           textStyle: WidgetStatePropertyAll(TextTheme.of(context).labelSmall),
-          padding: WidgetStatePropertyAll(EdgeInsets.only(left: 5, right: 5)),
-          shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadiusDirectional.all(Radius.circular(10)))),
-          side: WidgetStatePropertyAll(BorderSide(color: Colors.black12))
+          padding: const WidgetStatePropertyAll(EdgeInsets.only(left: 5, right: 5)),
+          shape: const WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadiusDirectional.all(Radius.circular(10)))),
+          side: const WidgetStatePropertyAll(BorderSide(color: Colors.black12))
         );
 
         final onButtonStyle = ButtonStyle(
-          minimumSize: WidgetStatePropertyAll(Size(35,35)),
+          minimumSize: const WidgetStatePropertyAll(Size(35,35)),
           textStyle: WidgetStatePropertyAll(TextTheme.of(context).labelSmall),
-          padding: WidgetStatePropertyAll(EdgeInsets.only(left: 5, right: 5)),
-          shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadiusDirectional.all(Radius.circular(10)))),
+          padding: const WidgetStatePropertyAll(EdgeInsets.only(left: 5, right: 5)),
+          shape: const WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadiusDirectional.all(Radius.circular(10)))),
           backgroundColor: WidgetStateColor.resolveWith((_) {return Theme.of(context).colorScheme.primaryContainer;}),
-          side: WidgetStatePropertyAll(BorderSide(color: Colors.black54))
+          side: const WidgetStatePropertyAll(BorderSide(color: Colors.black54))
         );
 
         final emojiButtonStyle = ButtonStyle(
             textStyle: WidgetStatePropertyAll(TextTheme.of(context).titleMedium),
-            padding: WidgetStatePropertyAll(EdgeInsets.all(3)),
-            minimumSize: WidgetStatePropertyAll(Size(30,30)),
+            padding: const WidgetStatePropertyAll(EdgeInsets.all(3)),
+            minimumSize: const WidgetStatePropertyAll(Size(30,30)),
         );
 
         final emojiButtonOnStyle = ButtonStyle(
             textStyle: WidgetStatePropertyAll(TextTheme.of(context).titleMedium),
-            padding: WidgetStatePropertyAll(EdgeInsets.all(3)),
-            minimumSize: WidgetStatePropertyAll(Size(30,30)),
+            padding: const WidgetStatePropertyAll(EdgeInsets.all(3)),
+            minimumSize: const WidgetStatePropertyAll(Size(30,30)),
             side: WidgetStatePropertyAll(BorderSide(width: 2, color: Theme.of(context).colorScheme.inversePrimary))
         );
 
@@ -256,7 +262,7 @@ class RecordScreenState extends State<RecordScreen> {
                 children: tagButtons
               ),
               Padding(
-                padding: EdgeInsets.only(top:10),
+                padding: const EdgeInsets.only(top:10),
                 child: Text("Wie schlimm?",
                   style: TextTheme.of(context).titleMedium,
                 ),
@@ -267,33 +273,33 @@ class RecordScreenState extends State<RecordScreen> {
                   TextButton(
                     onPressed: (){ setState((){ severity = 0; }); },
                     style: severity == 0 ? emojiButtonOnStyle : emojiButtonStyle,
-                    child:Text("${String.fromCharCode(128528)}"),
+                    child:Text(String.fromCharCode(128528)),
                   ),
                   TextButton(
                     onPressed: (){ setState((){ severity = 25; }); },
                     style: severity == 25 ? emojiButtonOnStyle : emojiButtonStyle,
-                    child:Text("${String.fromCharCode(128533)}"),
+                    child:Text(String.fromCharCode(128533)),
                   ),
                   TextButton(
                     onPressed: (){ setState((){ severity = 50; }); },
                     style: severity == 50 ? emojiButtonOnStyle : emojiButtonStyle,
-                    child:Text("${String.fromCharCode(128530)}"),
+                    child:Text(String.fromCharCode(128530)),
                   ),
                   TextButton(
                     onPressed: (){ setState((){ severity = 75; }); },
                     style: severity == 75 ? emojiButtonOnStyle : emojiButtonStyle,
-                    child:Text("${String.fromCharCode(128534)}"),
+                    child:Text(String.fromCharCode(128534)),
                   ),
                   TextButton(
                     onPressed: (){ setState((){ severity = 100; }); },
                     style: severity == 100 ? emojiButtonOnStyle : emojiButtonStyle,
-                    child:Text("${String.fromCharCode(128545)}"),
+                    child:Text(String.fromCharCode(128545)),
                   ),
                 ],
               ),
               TextField(
                 controller: textEditingController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   prefixIcon: Icon(Icons.warning),
                   labelText: 'Beschreibung',
                   helperText: 'Kurze Beschreibung (optional)',
@@ -313,7 +319,14 @@ class RecordScreenState extends State<RecordScreen> {
             TextButton(
               child: const Text('Speichern und weiter'),
               onPressed: () {
-                logInfo('annotation text ${textEditingController.text} tags ${tags}');
+                RunningRide? ride = Provider.of<Rides>(context, listen: false).currentRide;
+                Location? location = ride?.getLastLocation();
+                if (location != null) {
+                  ride_annotation.Annotation annotation = ride_annotation.Annotation(location: location, severity: severity, tags: tags, comment: textEditingController.text);
+                  ride?.addAnnotation(annotation);
+                } else {
+                  logErr("Could not add annotation because there's no last location!");
+                }
                 Navigator.of(context).pop();
               }
             ),

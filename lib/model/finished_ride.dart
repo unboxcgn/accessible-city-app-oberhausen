@@ -1,5 +1,7 @@
 
 
+import 'package:accessiblecity/model/annotation.dart';
+
 import 'location.dart';
 import 'running_ride.dart';
 import 'user.dart';
@@ -15,8 +17,6 @@ import 'package:pointycastle/api.dart' as crypto;
 import 'package:uuid/uuid.dart';
 import 'dart:convert';
 import 'dart:async';
-
-const dbVersion = 1;
 
 class FinishedRide extends ChangeNotifier {
   //ride properties
@@ -38,6 +38,7 @@ class FinishedRide extends ChangeNotifier {
   late String _comment;
 
   final List<Location> _locations = []; //empty means not loaded or no locations found. See if we need to save a ride without locations.
+  final List<Annotation> _annotations = []; //empty means not loaded or no annotations.
 
   //persistence
   late Database _db;
@@ -63,6 +64,8 @@ class FinishedRide extends ChangeNotifier {
   bool get syncAllowed => _syncAllowed;
   int get editRevision => _editRevision;
   int get syncRevision => _syncRevision;
+  List<Location> get locations => _locations;
+  List<Annotation> get annotations => _annotations;
 
   set syncRevision(int rev) {
     if (_syncRevision != rev) {
@@ -109,6 +112,7 @@ class FinishedRide extends ChangeNotifier {
     _syncRevision = 0;
 
     _locations.addAll(rr.locations);
+    _annotations.addAll(rr.annotations);
     logInfo("building finished ride from running ride with ${_locations.length} locations");
     try {
       _genKeyPair().then((_) { //gen key pair then persist
@@ -178,8 +182,10 @@ class FinishedRide extends ChangeNotifier {
      and then add add to sync
      */
     _requestLocations(db).then((val) {
-      logInfo("Loaded locations - going to sync");
-      SyncService().addRide(this);
+      _requestAnnotations(db).then((val) {
+        logInfo("Loaded locations and annotations - going to sync");
+        SyncService().addRide(this);
+      });
     });
   }
 
@@ -195,18 +201,17 @@ class FinishedRide extends ChangeNotifier {
   Future<bool> _requestLocations(Database db) async {
     final locs = await _db.query('location', where: 'rideId = ?',  whereArgs: [_dbId], orderBy: 'timestamp');
     for (final locMap in locs) {
-      final l = Location (
-        timestamp:DateTime.fromMicrosecondsSinceEpoch((1000000.0 * (locMap['timestamp'] as double)).round()),
-        latitude:locMap['latitude'] as double,
-        longitude:locMap['longitude'] as double,
-        accuracy:locMap['accuracy'] as double,
-        altitude:locMap['altitude'] as double,
-        altitudeAccuracy:locMap['altitudeAccuracy'] as double,
-        heading:locMap['heading'] as double,
-        headingAccuracy:locMap['headingAccuracy'] as double,
-        speed:locMap['speed'] as double,
-        speedAccuracy:locMap['speedAccuracy'] as double);
+      final l = Location.fromMap(locMap);
       _locations.add(l);
+    }
+    return true; //TODO: Error handling
+  }
+
+  Future<bool> _requestAnnotations(Database db) async {
+    final annotations = await _db.query('annotation', where: 'rideId = ?',  whereArgs: [_dbId], orderBy: 'timestamp');
+    for (final annoMap in annotations) {
+      final a = Annotation.fromMap (annoMap);
+      _annotations.add(a);
     }
     return true; //TODO: Error handling
   }
@@ -282,6 +287,13 @@ class FinishedRide extends ChangeNotifier {
         map['rideId'] = _dbId;
         batch.insert('location', map);
       }
+      batch.delete('annotation', where: 'rideId = ?', whereArgs: [_dbId]);
+      for (final anno in _annotations) {
+        logInfo("finishedride: upserting annotation");
+        final map = anno.toMap();
+        map['rideId'] = _dbId;
+        batch.insert('annotation', map);
+      }
       await batch.commit();
       logInfo("DATABASE: Upserted ride");
     }
@@ -336,7 +348,11 @@ class FinishedRide extends ChangeNotifier {
       map['locations'] = locs;
     }
     if (withAnnotations) {
-      //TODO
+      List<Map<String, dynamic>> annos = [];
+      for (Annotation a in _annotations) {
+        annos.add(a.toMap(timeDelta: timeDelta));
+      }
+      map['annotations'] = annos;
     }
     return map;
   }
