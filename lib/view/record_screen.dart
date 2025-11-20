@@ -14,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter/cupertino.dart';
 
 class RecordScreen extends StatefulWidget {
   const RecordScreen({super.key});
@@ -109,8 +110,7 @@ class RecordScreenState extends State<RecordScreen> {
                     padding: const EdgeInsets.all(2.0),
                     child: TextButton(
                         onPressed: () {
-
-                          if (Provider.of<Rides>(context, listen: false).currentRide?.getLastLocation() != null) {
+                          if (_lastUserLocation != null) {
                             showAdaptiveDialog(context: context, builder: _annotationDialogBuilder);
                           }
                         },
@@ -202,7 +202,7 @@ class RecordScreenState extends State<RecordScreen> {
     return StatefulBuilder(
        builder: (context, setState) {
         final offButtonStyle = ButtonStyle(
-          minimumSize: const WidgetStatePropertyAll(Size(35,35)),
+          minimumSize: const WidgetStatePropertyAll(Size(35,30)),
           textStyle: WidgetStatePropertyAll(TextTheme.of(context).labelSmall),
           padding: const WidgetStatePropertyAll(EdgeInsets.only(left: 5, right: 5)),
           shape: const WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadiusDirectional.all(Radius.circular(10)))),
@@ -210,7 +210,7 @@ class RecordScreenState extends State<RecordScreen> {
         );
 
         final onButtonStyle = ButtonStyle(
-          minimumSize: const WidgetStatePropertyAll(Size(35,35)),
+          minimumSize: const WidgetStatePropertyAll(Size(35,30)),
           textStyle: WidgetStatePropertyAll(TextTheme.of(context).labelSmall),
           padding: const WidgetStatePropertyAll(EdgeInsets.only(left: 5, right: 5)),
           shape: const WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadiusDirectional.all(Radius.circular(10)))),
@@ -219,15 +219,15 @@ class RecordScreenState extends State<RecordScreen> {
         );
 
         final emojiButtonStyle = ButtonStyle(
-            textStyle: WidgetStatePropertyAll(TextTheme.of(context).titleMedium),
+            textStyle: WidgetStatePropertyAll(TextTheme.of(context).titleLarge),
             padding: const WidgetStatePropertyAll(EdgeInsets.all(3)),
-            minimumSize: const WidgetStatePropertyAll(Size(30,30)),
+            minimumSize: const WidgetStatePropertyAll(Size(25,25)),
         );
 
         final emojiButtonOnStyle = ButtonStyle(
-            textStyle: WidgetStatePropertyAll(TextTheme.of(context).titleMedium),
+            textStyle: WidgetStatePropertyAll(TextTheme.of(context).titleLarge),
             padding: const WidgetStatePropertyAll(EdgeInsets.all(3)),
-            minimumSize: const WidgetStatePropertyAll(Size(30,30)),
+            minimumSize: const WidgetStatePropertyAll(Size(25,25)),
             side: WidgetStatePropertyAll(BorderSide(width: 2, color: Theme.of(context).colorScheme.inversePrimary))
         );
 
@@ -239,7 +239,7 @@ class RecordScreenState extends State<RecordScreen> {
                 logInfo("tags: removing $anno");
                 setState(() { tags.remove(anno); });
               } else {
-                logInfo("tags: removing $anno");
+                logInfo("tags: adding $anno");
                 setState(() { tags.add(anno); });
               }
               logInfo("tags: tags is $tags");
@@ -250,6 +250,7 @@ class RecordScreenState extends State<RecordScreen> {
         }
 
         return AlertDialog.adaptive(
+          scrollable: true,
           title: const Text("Was ist hier?"),
           content: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -264,48 +265,54 @@ class RecordScreenState extends State<RecordScreen> {
               Padding(
                 padding: const EdgeInsets.only(top:10),
                 child: Text("Wie schlimm?",
-                  style: TextTheme.of(context).titleMedium,
+                  style: TextTheme.of(context).titleSmall,
                 ),
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  TextButton(
+                  Expanded(child: TextButton(
                     onPressed: (){ setState((){ severity = 0; }); },
                     style: severity == 0 ? emojiButtonOnStyle : emojiButtonStyle,
                     child:Text(String.fromCharCode(128528)),
-                  ),
-                  TextButton(
+                  )),
+                  Expanded(child: TextButton(
                     onPressed: (){ setState((){ severity = 25; }); },
                     style: severity == 25 ? emojiButtonOnStyle : emojiButtonStyle,
                     child:Text(String.fromCharCode(128533)),
-                  ),
-                  TextButton(
+                  )),
+                  Expanded(child: TextButton(
                     onPressed: (){ setState((){ severity = 50; }); },
                     style: severity == 50 ? emojiButtonOnStyle : emojiButtonStyle,
                     child:Text(String.fromCharCode(128530)),
-                  ),
-                  TextButton(
+                  )),
+                  Expanded(child: TextButton(
                     onPressed: (){ setState((){ severity = 75; }); },
                     style: severity == 75 ? emojiButtonOnStyle : emojiButtonStyle,
                     child:Text(String.fromCharCode(128534)),
-                  ),
-                  TextButton(
+                  )),
+                  Expanded(child: TextButton(
                     onPressed: (){ setState((){ severity = 100; }); },
                     style: severity == 100 ? emojiButtonOnStyle : emojiButtonStyle,
                     child:Text(String.fromCharCode(128545)),
-                  ),
+                  )),
                 ],
               ),
-              TextField(
+              Padding(
+                padding: const EdgeInsets.only(top:10),
+                child: Text("Beschreibung / Kommentar",
+                  style: TextTheme.of(context).titleSmall,
+                ),
+              ),
+              CupertinoTextField(
                 controller: textEditingController,
-                decoration: const InputDecoration(
+/*                decoration: const InputDecoration(
                   prefixIcon: Icon(Icons.warning),
                   labelText: 'Beschreibung',
                   helperText: 'Kurze Beschreibung (optional)',
                   filled: true,
                 ),
-              ),
+  */            ),
 
             ],
           ),
@@ -320,12 +327,20 @@ class RecordScreenState extends State<RecordScreen> {
               child: const Text('Speichern und weiter'),
               onPressed: () {
                 RunningRide? ride = Provider.of<Rides>(context, listen: false).currentRide;
-                Location? location = ride?.getLastLocation();
-                if (location != null) {
-                  ride_annotation.Annotation annotation = ride_annotation.Annotation(location: location, severity: severity, tags: tags, comment: textEditingController.text);
-                  ride?.addAnnotation(annotation);
+                if (ride != null) {
+                  Location? location = ride.locations.lastOrNull;
+                  if (location != null) {
+                    ride_annotation.Annotation annotation = ride_annotation
+                        .Annotation(location: location,
+                        severity: severity,
+                        tags: tags,
+                        comment: textEditingController.text);
+                    ride.addAnnotation(annotation);
+                  } else {
+                    logErr("Could not add annotation because there's no last location!");
+                  }
                 } else {
-                  logErr("Could not add annotation because there's no last location!");
+                  logErr("Could not add annotation because there's no current ride!");
                 }
                 Navigator.of(context).pop();
               }

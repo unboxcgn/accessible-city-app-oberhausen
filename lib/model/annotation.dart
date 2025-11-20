@@ -44,9 +44,7 @@ class Annotation {
     final list = s.split(" ");
     Set<AnnotationTag> tags = {};
     for (final val in list) {
-      if (val is String) {
-        tags.add(annotationTagByValue(val));
-      }
+      tags.add(annotationTagByValue(val));
     }
     return tags;
   }

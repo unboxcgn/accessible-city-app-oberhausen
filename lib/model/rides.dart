@@ -5,7 +5,7 @@ import '../services/sensor_service.dart';
 import 'package:flutter/widgets.dart';
 import 'package:sqflite/sqflite.dart';
 
-const dbVersion = 2;
+const dbVersion = 3;
 
 class Rides extends ChangeNotifier {
 
@@ -71,7 +71,7 @@ class Rides extends ChangeNotifier {
   }
 
   Future<void> _dbCreateTables(db, version) async {
-    await db.execute('CREATE TABLE ride('
+    await db.execute('CREATE TABLE IF NOT EXISTS ride('
         'id INTEGER PRIMARY KEY AUTOINCREMENT,'
         'uuid TEXT,'
         'name TEXT,'
@@ -94,7 +94,7 @@ class Rides extends ChangeNotifier {
         'editRevision INTEGER,'
         'syncRevision INTEGER'
         ')');
-    await db.execute('CREATE TABLE location('
+    await db.execute('CREATE TABLE IF NOT EXISTS location('
         'id INTEGER PRIMARY KEY AUTOINCREMENT,'
         'rideId INTEGER,'
         'timestamp REAL,'
@@ -108,7 +108,7 @@ class Rides extends ChangeNotifier {
         'speed REAL,'
         'speedAccuracy REAL'
         ')');
-    await db.execute('CREATE TABLE annotation('
+    await db.execute('CREATE TABLE IF NOT EXISTS annotation ('
         'id INTEGER PRIMARY KEY AUTOINCREMENT,'
         'rideId INTEGER,'
         'severity INTEGER,'
