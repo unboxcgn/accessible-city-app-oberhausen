@@ -38,65 +38,60 @@ class RecordScreenState extends State<RecordScreen> {
 
   @override
   Widget build(BuildContext context) {
-    logInfo("recordscreen build: style JSON is ${_mapData.styleJsonPath}");
     return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.record_screen.dart
-        title: const Text(Constants.recording),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children:[
-/*            TextButton(
-              child: Text("Toggle track location"),
-              onPressed: toggleLocationTracking
-            ), */
-            Expanded(
-              child:MapLibreMap(
-                styleString: _mapData.styleJsonPath,
-                onMapCreated: _mapCreated,
-                onUserLocationUpdated: _userLocationUpdated,
-                onStyleLoadedCallback: _styleLoaded,
-                initialCameraPosition: const CameraPosition(target: LatLng(50.9365, 6.9398), zoom: 16.0),
-                trackCameraPosition: false,
-                zoomGesturesEnabled: true,
-                rotateGesturesEnabled: true,
-                dragEnabled: false,
-                myLocationEnabled: true,
-                compassEnabled: true,
-                myLocationTrackingMode: MyLocationTrackingMode.none,
-                myLocationRenderMode: MyLocationRenderMode.normal,
-                doubleClickZoomEnabled: false,
-                scrollGesturesEnabled: !_trackUserLocation,
-                minMaxZoomPreference: const MinMaxZoomPreference(10,20),
-              )
-            ),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: InkWell(
-                child: Text(
-                    Constants.mapAttribution,
-                    style: Theme.of(context).textTheme.bodySmall),
-                onDoubleTap: () => launchUrl(Uri.parse('https://openstreetmap.org/copyright'))
+        appBar: AppBar(
+          // TRY THIS: Try changing the color here to a specific color (to
+          // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
+          // change color while the other colors stay the same.
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+          // Here we take the value from the MyHomePage object that was created by
+          // the App.build method, and use it to set our appbar title.record_screen.dart
+          title: const Text(Constants.recording),
+        ),
+        body: Center(
+          // Center is a layout widget. It takes a single child and positions it
+          // in the middle of the parent.
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children:[
+              Expanded(
+                child:MapLibreMap(
+                  styleString: _mapData.styleJsonPath,
+                  onMapCreated: _mapCreated,
+                  onUserLocationUpdated: _userLocationUpdated,
+                  onStyleLoadedCallback: _styleLoaded,
+                  initialCameraPosition: const CameraPosition(target: LatLng(50.9365, 6.9398), zoom: 16.0),
+                  trackCameraPosition: false,
+                  zoomGesturesEnabled: true,
+                  rotateGesturesEnabled: true,
+                  dragEnabled: false,
+                  myLocationEnabled: true,
+                  compassEnabled: true,
+                  myLocationTrackingMode: MyLocationTrackingMode.none,
+                  myLocationRenderMode: MyLocationRenderMode.normal,
+                  doubleClickZoomEnabled: false,
+                  scrollGesturesEnabled: !_trackUserLocation,
+                  minMaxZoomPreference: const MinMaxZoomPreference(10,20),
+                )
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(bottom:20.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(2.0),
-                    child: TextButton(
+              Align(
+                alignment: Alignment.centerLeft,
+                child: InkWell(
+                  child: Text(
+                      Constants.mapAttribution,
+                      style: Theme.of(context).textTheme.bodySmall),
+                  onDoubleTap: () => launchUrl(Uri.parse('https://openstreetmap.org/copyright'))
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(bottom:20.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(2.0),
+                      child: TextButton(
                         onPressed: _toggleLocationTracking,
                         child: Column(
                           children: [
@@ -104,45 +99,44 @@ class RecordScreenState extends State<RecordScreen> {
                             const Text(Constants.trackLocation),
                           ],
                         )
+                      ),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(2.0),
-                    child: TextButton(
-                        onPressed: () {
-                          if (_lastUserLocation != null) {
-                            showAdaptiveDialog(context: context, builder: _annotationDialogBuilder);
-                          }
-                        },
-                        child: const Column(
-                          children: [
-                            Icon(Icons.comment),
-                            Text(Constants.annotation),
-                          ],
-                        )
+                    Padding(
+                      padding: const EdgeInsets.all(2.0),
+                      child: TextButton(
+                          onPressed: () {
+                            if (_lastUserLocation != null) {
+                              showAdaptiveDialog(context: context, builder: _annotationDialogBuilder);
+                            }
+                          },
+                          child: const Column(
+                            children: [
+                              Icon(Icons.comment),
+                              Text(Constants.annotation),
+                            ],
+                          )
+                      ),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(2.0),
-                    child: TextButton(
-                        onPressed: () {Provider.of<Rides>(context, listen: false).finishCurrentRide();},
-                        child: const Column(
-                          children: [
-                            Icon(Icons.stop_circle),
-                            Text(Constants.endRecording),
-                          ]
-                        )
+                    Padding(
+                      padding: const EdgeInsets.all(2.0),
+                      child: TextButton(
+                          onPressed: () {Provider.of<Rides>(context, listen: false).finishCurrentRide();},
+                          child: const Column(
+                            children: [
+                              Icon(Icons.stop_circle),
+                              Text(Constants.endRecording),
+                            ]
+                          )
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            )
-          ],
-        ),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
-    );
+                  ],
+                ),
+              )
+            ],
+          ),
+        ), // This trailing comma makes auto-formatting nicer for build methods.
+      );
   }
-
 
   void _toggleLocationTracking() {
     setState(() {
@@ -153,11 +147,11 @@ class RecordScreenState extends State<RecordScreen> {
       if (_lastUserLocation != null) {
         _userLocationUpdated(_lastUserLocation!);
       }
-
     }
   }
 
   void _userLocationUpdated(UserLocation location) async {
+    logInfo("user loction updated");
     _lastUserLocation = location;
     if (_trackUserLocation) {
       final mapController = await _controllerCompleter.future;
@@ -191,6 +185,14 @@ class RecordScreenState extends State<RecordScreen> {
       mapController.addSource(entry,
         VectorSourceProperties(url: _mapData.urlForMap(entry))
       );
+    }
+    //trigger camera movement on ios (should work without this, but it doesn't)
+    UserLocation? loc = _lastUserLocation;
+    if (loc != null) {
+      Future.delayed(Duration(milliseconds: 100), () {
+        logInfo("_styleLoaded: user location present");
+        _userLocationUpdated(loc);
+      });
     }
   }
 

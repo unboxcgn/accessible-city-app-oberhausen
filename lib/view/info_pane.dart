@@ -40,7 +40,7 @@ Die erhobenen Datensätze werden anonymisiert auf accessible-city.de veröffentl
           ),
           Padding(
             padding: const EdgeInsets.all(10.0),
-            child: Center(child: Text('App version 0.2.1, build 2025-11-14-02-30-00', style: Theme.of(context).textTheme.bodyMedium)),
+            child: Center(child: Text('App version 1.0, build 2025-11-21-19-00-00', style: Theme.of(context).textTheme.bodyMedium)),
           ),
         ],
       ),
