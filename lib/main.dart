@@ -65,6 +65,7 @@ class MyAppState extends State<MyApp> {
 
     return MaterialApp(
         title: 'Accessible City',
+        debugShowCheckedModeBanner: false,
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(
             seedColor: Colors.purple.shade200,
