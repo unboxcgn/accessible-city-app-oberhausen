@@ -17,7 +17,7 @@ class SettingsPane extends StatelessWidget {
           const Padding(
               padding: EdgeInsets.only(
                   top: 30, left: 10, right: 10, bottom: 10),
-              child: Text("Standard-Rollstuhltyp:")),
+              child: Text("Standard-Fortbewegungsmittel:")),
           Padding(
               padding: const EdgeInsets.all(10),
               child: DropdownButton<int>(

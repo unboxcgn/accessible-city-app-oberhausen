@@ -5,6 +5,8 @@ enum VehicleType {
   electricAttached(label: "Rollstuhl mit Zuggerät", value: 52),
   sport(label: "Sportrollstuhl", value: 53),
   manualAssited(label: "Rollstuhl geschoben", value: 54),
+  bicycle(label: "Fahrrad (keine Einschränkung)", value: 98),
+  pedestrian(label: "Zu Fuß (keine Einschränkung)", value: 99),
   other(label: "Anderes", value: 9999);
 
   const VehicleType({
