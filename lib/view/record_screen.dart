@@ -197,35 +197,9 @@ class RecordScreenState extends State<RecordScreen> {
     return StatefulBuilder(
        builder: (context, setState) {
 
-        final emojiButtonStyle = ButtonStyle(
-            textStyle: WidgetStatePropertyAll(TextTheme.of(context).titleLarge),
-            padding: const WidgetStatePropertyAll(EdgeInsets.all(3)),
-            minimumSize: const WidgetStatePropertyAll(Size(25,25)),
-        );
-
-        final emojiButtonOnStyle = ButtonStyle(
-            textStyle: WidgetStatePropertyAll(TextTheme.of(context).titleLarge),
-            padding: const WidgetStatePropertyAll(EdgeInsets.all(3)),
-            minimumSize: const WidgetStatePropertyAll(Size(25,25)),
-            side: WidgetStatePropertyAll(BorderSide(width: 2, color: Theme.of(context).colorScheme.inversePrimary))
-        );
-
-        List<Widget> tagButtons = [];
-        for (final anno in AnnotationTag.values) {
-          final button = OutlinedButton(
-            onPressed: () {
-              if (tags.contains(anno)) {
-                logInfo("tags: removing $anno");
-                setState(() { tags.remove(anno); });
-              } else {
-                logInfo("tags: adding $anno");
-                setState(() { tags.add(anno); });
-              }
-              logInfo("tags: tags is $tags");
-            },
-            style: tags.contains(anno) ? onButtonStyle : offButtonStyle, child: Text(anno.label)
-          );
-          final chip = FilterChip(
+         List<Widget> tagButtons = [];
+         for (final anno in AnnotationTag.values) {
+            final chip = FilterChip(
               label: Text(anno.label),
               selected:(tags.contains((anno))),
               onSelected: (on) {
@@ -240,6 +214,16 @@ class RecordScreenState extends State<RecordScreen> {
               });
           tagButtons.add(chip);
         }
+
+        final makeSeverityChip = (val, unicode) {
+          return ChoiceChip(
+            labelStyle: TextTheme.of(context).titleLarge,
+            showCheckmark: false,
+            selected: severity == val,
+            onSelected: (sel) { setState((){ severity = val; }); },
+            label:Text(String.fromCharCode(unicode)),
+          );
+        };
 
         return AlertDialog.adaptive(
           scrollable: true,
@@ -263,31 +247,11 @@ class RecordScreenState extends State<RecordScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  Expanded(child: TextButton(
-                    onPressed: (){ setState((){ severity = 0; }); },
-                    style: severity == 0 ? emojiButtonOnStyle : emojiButtonStyle,
-                    child:Text(String.fromCharCode(128528)),
-                  )),
-                  Expanded(child: TextButton(
-                    onPressed: (){ setState((){ severity = 25; }); },
-                    style: severity == 25 ? emojiButtonOnStyle : emojiButtonStyle,
-                    child:Text(String.fromCharCode(128533)),
-                  )),
-                  Expanded(child: TextButton(
-                    onPressed: (){ setState((){ severity = 50; }); },
-                    style: severity == 50 ? emojiButtonOnStyle : emojiButtonStyle,
-                    child:Text(String.fromCharCode(128530)),
-                  )),
-                  Expanded(child: TextButton(
-                    onPressed: (){ setState((){ severity = 75; }); },
-                    style: severity == 75 ? emojiButtonOnStyle : emojiButtonStyle,
-                    child:Text(String.fromCharCode(128534)),
-                  )),
-                  Expanded(child: TextButton(
-                    onPressed: (){ setState((){ severity = 100; }); },
-                    style: severity == 100 ? emojiButtonOnStyle : emojiButtonStyle,
-                    child:Text(String.fromCharCode(128545)),
-                  )),
+                  makeSeverityChip(0, 128528),
+                  makeSeverityChip(25, 128533),
+                  makeSeverityChip(50, 128530),
+                  makeSeverityChip(75, 128534),
+                  makeSeverityChip(100, 128545)
                 ],
               ),
               Padding(
