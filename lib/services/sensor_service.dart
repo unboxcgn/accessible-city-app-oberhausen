@@ -80,7 +80,6 @@ class SensorService {
           speed: ld.speed ?? 0,
           speedAccuracy: ld.speedAccuracy ?? 0);
       ride.addLocation(loc);
-      logInfo("adding location");
     });
     return true;
    }

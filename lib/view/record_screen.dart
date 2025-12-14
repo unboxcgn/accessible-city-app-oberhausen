@@ -40,12 +40,6 @@ class RecordScreenState extends State<RecordScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          // TRY THIS: Try changing the color here to a specific color (to
-          // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-          // change color while the other colors stay the same.
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-          // Here we take the value from the MyHomePage object that was created by
-          // the App.build method, and use it to set our appbar title.record_screen.dart
           title: const Text(Constants.recording),
         ),
         body: Center(
@@ -163,7 +157,6 @@ class RecordScreenState extends State<RecordScreen> {
         zoom = pos.zoom;
         bearing = pos.bearing;
       }
-      logInfo("going to location ${location.position}");
       mapController.animateCamera(CameraUpdate.newCameraPosition(
         CameraPosition(target: location.position, zoom: zoom, bearing: bearing))
       );
@@ -203,22 +196,6 @@ class RecordScreenState extends State<RecordScreen> {
 
     return StatefulBuilder(
        builder: (context, setState) {
-        final offButtonStyle = ButtonStyle(
-          minimumSize: const WidgetStatePropertyAll(Size(35,30)),
-          textStyle: WidgetStatePropertyAll(TextTheme.of(context).labelSmall),
-          padding: const WidgetStatePropertyAll(EdgeInsets.only(left: 5, right: 5)),
-          shape: const WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadiusDirectional.all(Radius.circular(10)))),
-          side: const WidgetStatePropertyAll(BorderSide(color: Colors.black12))
-        );
-
-        final onButtonStyle = ButtonStyle(
-          minimumSize: const WidgetStatePropertyAll(Size(35,30)),
-          textStyle: WidgetStatePropertyAll(TextTheme.of(context).labelSmall),
-          padding: const WidgetStatePropertyAll(EdgeInsets.only(left: 5, right: 5)),
-          shape: const WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadiusDirectional.all(Radius.circular(10)))),
-          backgroundColor: WidgetStateColor.resolveWith((_) {return Theme.of(context).colorScheme.primaryContainer;}),
-          side: const WidgetStatePropertyAll(BorderSide(color: Colors.black54))
-        );
 
         final emojiButtonStyle = ButtonStyle(
             textStyle: WidgetStatePropertyAll(TextTheme.of(context).titleLarge),
@@ -248,7 +225,20 @@ class RecordScreenState extends State<RecordScreen> {
             },
             style: tags.contains(anno) ? onButtonStyle : offButtonStyle, child: Text(anno.label)
           );
-          tagButtons.add(button);
+          final chip = FilterChip(
+              label: Text(anno.label),
+              selected:(tags.contains((anno))),
+              onSelected: (on) {
+                if (tags.contains(anno)) {
+                  logInfo("tags: removing $anno");
+                  setState(() { tags.remove(anno); });
+                } else {
+                  logInfo("tags: adding $anno");
+                  setState(() { tags.add(anno); });
+                }
+                logInfo("tags: tags is $tags");
+              });
+          tagButtons.add(chip);
         }
 
         return AlertDialog.adaptive(

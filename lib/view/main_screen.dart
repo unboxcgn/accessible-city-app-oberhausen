@@ -1,7 +1,7 @@
-import 'settings_pane.dart';
+import 'package:accessiblecity/main.dart';
+
 import 'no_rides_pane.dart';
 import 'rides_pane.dart';
-import 'info_pane.dart';
 import 'record_screen.dart';
 import '../constants.dart';
 import '../model/rides.dart';
@@ -11,9 +11,9 @@ import 'package:provider/provider.dart';
 import 'package:app_settings/app_settings.dart';
 
 class MainScreen extends StatefulWidget {
-  const MainScreen({super.key, required this.title});
+  const MainScreen({super.key, required this.appState});
 
-  final String title;
+  final MyAppState appState;
 
   @override
   State<MainScreen> createState() {
@@ -22,16 +22,15 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  int _pageIndex = 0;
 
-  void _setPageIndex(int idx) {
-    if (_pageIndex != idx) {
-      setState(() {
-        _pageIndex = idx;
-      });
-    }
+  void _startRecording(BuildContext ctx) {
+    Provider.of<Rides>(context, listen: false).startRide().then((ok) {
+      if ((context.mounted) && (!ok)) {
+        showAdaptiveDialog(context: context, builder: startRideFailedAlert);
+      }
+    });
+
   }
-
   @override
   Widget build(BuildContext context) {
 
@@ -41,65 +40,34 @@ class _MainScreenState extends State<MainScreen> {
     }
     bool havePastRide = (Provider.of<Rides>(context).pastRides.isNotEmpty);
 
-    Widget pane;
-    if (_pageIndex == 0) {
-      if (havePastRide) {
-        pane = const RidesPane();
-      } else {
-        pane = const NoRidesPane();
-      }
-    } else if (_pageIndex == 1) {
-      pane = const SettingsPane();
-    } else {
-      pane = const InfoPane();
-    }
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: pane,
-      ), // This trailing comma makes auto-formatting nicer for build methods.
-      bottomNavigationBar: NavigationBar(
-        onDestinationSelected: (idx) {
-          _setPageIndex(idx);
-        },
-        selectedIndex: _pageIndex,
-        destinations: const <Widget>[
-          NavigationDestination(
-              icon: Icon(Icons.directions),
-              selectedIcon: Icon(Icons.directions_outlined),
-              label: "Wege"),
-          NavigationDestination(
-              icon: Icon(Icons.settings),
-              selectedIcon: Icon(Icons.settings_outlined),
-              label: "Einstellungen"),
-          NavigationDestination(
-              icon: Icon(Icons.info),
-              selectedIcon: Icon(Icons.info_outlined),
-              label: "Das Projekt"),
+        title: const Text(Constants.appTitle),
+        actions: [
+          IconButton(
+              icon: const Icon(Icons.info_outline),
+              tooltip: 'Über das Projekt',
+              onPressed: () { widget.appState.gotoPage("info"); }
+          ),
+          IconButton(
+              icon: const Icon(Icons.settings),
+              tooltip: 'Einstellungen',
+              onPressed: () { widget.appState.gotoPage("settings"); }
+          ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-          onPressed: () {
-            Provider.of<Rides>(context, listen: false).startRide().then((ok) {
-              if ((context.mounted) && (!ok)) {
-                showAdaptiveDialog(context: context, builder: startRideFailedAlert);
-              }
-            });
+      body: Center(
+        child: havePastRide ? const RidesPane() : const NoRidesPane(),
+      ),
+      bottomNavigationBar: BottomAppBar(
+        child: OutlinedButton.icon(
+          onPressed: (){
+            _startRecording(context);
           },
           label: const Text(Constants.startRecording),
           icon: const Icon(Icons.play_arrow),
-      )
+        ),
+      ),
     );
   }
 }

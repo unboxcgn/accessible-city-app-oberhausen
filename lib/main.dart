@@ -4,6 +4,8 @@ import 'model/map_data.dart';
 import 'model/rides.dart';
 import 'view/first_boot_screen.dart';
 import 'view/main_screen.dart';
+import 'view/info_screen.dart';
+import 'view/settings_screen.dart';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -16,7 +18,6 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => User()),
         ChangeNotifierProvider(create: (_) => Rides())
       ], child: const MyApp()));
-
 }
 
 class MyApp extends StatefulWidget {
@@ -29,6 +30,13 @@ class MyApp extends StatefulWidget {
 class MyAppState extends State<MyApp> {
 
   bool _initialized = false;
+  String _subpage = "";
+
+  void gotoPage(String page) {
+    setState(() {
+      _subpage = page;
+    });
+  }
 
   Future<void> initAppAsync() async {
     await Future.wait([
@@ -50,30 +58,72 @@ class MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
 
-    Widget contents;
+    List<MaterialPage> contents = [];
     if (!_initialized) {
-      contents = const Scaffold(
-          body: Center(
+      contents = [
+        const MaterialPage(
+          child: Scaffold(
+            body: Center(
               child: CircularProgressIndicator()
+            )
           )
-      );
+        )
+      ];
     } else if (Provider.of<User>(context).firstStart) {
-      contents = const FirstBootScreen(title: 'Accessible City');
+      contents = [const MaterialPage(child : FirstBootScreen())];
     } else {
-      contents = const MainScreen(title: 'Accessible City');
+      contents = [
+        MaterialPage(child : MainScreen(appState: this)),
+        if (_subpage == "info") const MaterialPage(child : InfoScreen()),
+        if (_subpage == "settings") const MaterialPage(child : SettingsScreen()),
+      ];
     }
 
     return MaterialApp(
         title: 'Accessible City',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: Colors.purple.shade200,
-          ),
           useMaterial3: true,
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: Colors.deepPurple,
+            surface: Colors.deepPurple.shade50,
+          ),
+          appBarTheme: AppBarThemeData(
+            backgroundColor: Colors.deepPurple.shade200,
+          ),
+          bottomAppBarTheme: const BottomAppBarThemeData(
+            color: Colors.transparent,
+          ),
+          chipTheme: ChipThemeData(
+            backgroundColor: Colors.white,
+            selectedColor: const Color.fromARGB(255,100,255,100),
+            padding: EdgeInsets.all(0),
+            side: const BorderSide(
+              color: Colors.black, // Border color
+              width: 2, // Border width
+            )
+          ),
+          outlinedButtonTheme: OutlinedButtonThemeData(
+            style: OutlinedButton.styleFrom(
+              foregroundColor: Colors.black,
+              backgroundColor: const Color.fromARGB(255,100,255,100),
+              side: const BorderSide(
+                color: Colors.black, // Border color
+                width: 3, // Border width
+              ),
+            ),
+          ),
         ),
-        home: contents,
+        home: Navigator(
+            pages: contents,
+            onDidRemovePage: _didRemovePage
+        )
     );
   }
+
+  void _didRemovePage(Page<dynamic> page) {
+    gotoPage("");
+  }
+
 }
 
