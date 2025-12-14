@@ -103,6 +103,14 @@ class MyAppState extends State<MyApp> {
               width: 2, // Border width
             )
           ),
+          cardTheme: CardThemeData(
+            color: Colors.deepPurple.shade200,
+            shadowColor: Colors.black,
+            shape: RoundedRectangleBorder(
+              side:BorderSide(color: Colors.black, width: 2),
+              borderRadius: BorderRadiusGeometry.all(Radius.circular(10)),
+            )
+          ),
           outlinedButtonTheme: OutlinedButtonThemeData(
             style: OutlinedButton.styleFrom(
               foregroundColor: Colors.black,

@@ -87,19 +87,6 @@ class RidesPane extends StatelessWidget {
                   ),
                 ]
             ),
-/*            TableRow(
-                children:[
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text('Bewegungszeit', style: Theme.of(context).textTheme.labelLarge, textAlign: TextAlign.right,),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text('1:23:45', style: Theme.of(context).textTheme.bodyMedium),
-                  ),
-                ]
-            ),
-*/
           ]
         ),
         Padding(
@@ -130,15 +117,14 @@ class RideDigestView extends StatelessWidget {
 
   @override Widget build(BuildContext context) {
     String twoDigits(int n) => n.toString().padLeft(2, "0");
-    final colorScheme = Theme.of(context).colorScheme;
     final durH = _ride.recordingDuration.inHours.toString();
     final durM = twoDigits(_ride.recordingDuration.inMinutes.remainder(60).abs());
     final durS = twoDigits(_ride.recordingDuration.inSeconds.remainder(60).abs());
     final dur = '$durH:$durM:$durS';
     final title = (_ride.annotations.isNotEmpty) ? "${_ride.name} *" : _ride.name;
-    return Container(
-      color:colorScheme.inversePrimary, //Colors.tealAccent, //colorScheme.primaryContainer
-          child: Center (
+    return Card(
+          child: Padding (
+            padding: const EdgeInsetsGeometry.all(10),
               child: Column(
                   children: [
                     Row(
@@ -155,7 +141,7 @@ class RideDigestView extends StatelessWidget {
                         border: const TableBorder(
                             horizontalInside: BorderSide(width: 1, style: BorderStyle.solid),
                             top: BorderSide(width: 1, style: BorderStyle.solid),
-                            bottom: BorderSide(width: 1, style: BorderStyle.solid)),
+                        ),
                         children: <TableRow>[
                           TableRow(
                               children: [
