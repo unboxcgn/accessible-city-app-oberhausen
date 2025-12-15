@@ -42,16 +42,16 @@ class _MainScreenState extends State<MainScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(Constants.appTitle),
+        title: const Text(Constants.yourRides),
         actions: [
           IconButton(
               icon: const Icon(Icons.info_outline),
-              tooltip: 'Über das Projekt',
+              tooltip: Constants.aboutTheProject,
               onPressed: () { widget.appState.gotoPage("info"); }
           ),
           IconButton(
               icon: const Icon(Icons.settings),
-              tooltip: 'Einstellungen',
+              tooltip: Constants.settings,
               onPressed: () { widget.appState.gotoPage("settings"); }
           ),
         ],

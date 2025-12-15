@@ -1,5 +1,8 @@
 class Constants {
   static const String appTitle = "Accessible City";
+  static const String aboutTheProject = "Über Accessible City";
+  static const String settings = "Einstellungen";
+  static const String yourRides = "Deine Wege";
   static const String unnamedRide = "Weg";
   static const String morningRide = "Weg am Morgen";
   static const String lateMorningRide = "Weg am Vormittag";

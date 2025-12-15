@@ -89,7 +89,7 @@ class MyAppState extends State<MyApp> {
             surface: Colors.deepPurple.shade50,
           ),
           appBarTheme: AppBarThemeData(
-            backgroundColor: Colors.deepPurple.shade200,
+            backgroundColor: Colors.deepPurple.shade50,
           ),
           bottomAppBarTheme: const BottomAppBarThemeData(
             color: Colors.transparent,
@@ -114,6 +114,7 @@ class MyAppState extends State<MyApp> {
           outlinedButtonTheme: OutlinedButtonThemeData(
             style: OutlinedButton.styleFrom(
               foregroundColor: Colors.black,
+              disabledBackgroundColor: Colors.transparent,
               backgroundColor: const Color.fromARGB(255,100,255,100),
               side: const BorderSide(
                 color: Colors.black, // Border color

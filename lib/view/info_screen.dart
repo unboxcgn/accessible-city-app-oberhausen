@@ -11,7 +11,7 @@ class InfoScreen extends StatelessWidget {
 
     return Scaffold(
         appBar: AppBar(
-          title: const Text(Constants.appTitle),
+          title: const Text(Constants.aboutTheProject),
         ),
         body:
           Padding(

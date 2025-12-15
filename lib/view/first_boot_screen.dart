@@ -34,13 +34,13 @@ class FirstBootScreen extends StatelessWidget {
               ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Text('Wir wollen mit Bewegungsdaten die Wege von Menschen mit Mobilitätseinschränkungen in Köln analysieren und so bessere Wege für alle schaffen.',
+                child: Text('Wir wollen mit Bewegungsdaten die Wege von Menschen mit Mobilitätseinschränkungen in Köln und Oberhausen analysieren und so bessere Wege für alle schaffen.',
                     style: Theme.of(context).textTheme.bodyMedium,
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Text('Dafür werden deine Bewegungsdaten und die Daten des Beschleunigungssensors auf dem Handy gesammelt und anonymisiert auf den Accessible-City-Server hochgeladen.',
+                child: Text('Dafür werden deine Bewegungsdaten auf dem Handy gesammelt und anonymisiert auf den Accessible-City-Server hochgeladen.',
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
               ),
@@ -49,10 +49,10 @@ class FirstBootScreen extends StatelessWidget {
                   title: Text("Ja, ihr dürft meine Daten verwenden", style: Theme.of(context).textTheme.labelLarge),
                   value: Provider.of<User>(context).uploadConsent,
                   onChanged: (val) {if (val!=null) { Provider.of<User>(context, listen:false).uploadConsent = val;} }),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-                ),
+              OutlinedButton(
+//                style: ElevatedButton.styleFrom(
+//                  backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+//                ),
                 onPressed: Provider.of<User>(context).uploadConsent ? () {
                   Provider.of<User>(context, listen:false).firstStart = false;
                 } : null,

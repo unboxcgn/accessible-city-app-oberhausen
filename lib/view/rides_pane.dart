@@ -93,12 +93,12 @@ class RidesPane extends StatelessWidget {
           padding: const EdgeInsets.all(20.0),
           child: Text('Deine Fahrten', style: Theme.of(context).textTheme.titleLarge),
         ),
-        ListView.separated(
+        ListView.builder(
             padding: const EdgeInsets.all(8),
             itemCount: rides.length,
             shrinkWrap: true,
             itemBuilder: (BuildContext context, int index) => RideDigestView(rides[rides.length-index-1]),  //reverse!
-            separatorBuilder: (BuildContext context, int index) => const Divider(),
+//            separatorBuilder: (BuildContext context, int index) => const Divider(),
             physics: const NeverScrollableScrollPhysics(),
         ),
         const Padding(
