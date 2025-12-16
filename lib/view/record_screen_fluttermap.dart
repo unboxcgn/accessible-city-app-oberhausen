@@ -8,6 +8,7 @@ import 'package:accessiblecity/enums.dart';
 import 'package:accessiblecity/model/running_ride.dart';
 import 'package:accessiblecity/services/map_snapshot_service.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 
 import '../logger.dart';
 import '../constants.dart';
@@ -91,12 +92,18 @@ class RecordScreenStateFM extends State<RecordScreenFM> {
     List<Location> locations = ride.locations!;
     locations = [
       Location(latitude: 50.9365, longitude: 6.9398, accuracy: 0, altitude: 0, altitudeAccuracy: 0, heading: 0, headingAccuracy: 0, speed: 0, speedAccuracy: 0, timestamp: DateTime(2025)),
-      Location(latitude: 50.9375, longitude: 6.9398, accuracy: 0, altitude: 0, altitudeAccuracy: 0, heading: 0, headingAccuracy: 0, speed: 0, speedAccuracy: 0, timestamp: DateTime(2025)),
-      Location(latitude: 50.9365, longitude: 6.941, accuracy: 0, altitude: 0, altitudeAccuracy: 0, heading: 0, headingAccuracy: 0, speed: 0, speedAccuracy: 0, timestamp: DateTime(2025)),
-      Location(latitude: 50.935, longitude: 6.936, accuracy: 0, altitude: 0, altitudeAccuracy: 0, heading: 0, headingAccuracy: 0, speed: 0, speedAccuracy: 0, timestamp: DateTime(2025)),
+//      Location(latitude: 50.9375, longitude: 6.9398, accuracy: 0, altitude: 0, altitudeAccuracy: 0, heading: 0, headingAccuracy: 0, speed: 0, speedAccuracy: 0, timestamp: DateTime(2025)),
+//      Location(latitude: 50.9365, longitude: 6.941, accuracy: 0, altitude: 0, altitudeAccuracy: 0, heading: 0, headingAccuracy: 0, speed: 0, speedAccuracy: 0, timestamp: DateTime(2025)),
+//      Location(latitude: 50.935, longitude: 6.936, accuracy: 0, altitude: 0, altitudeAccuracy: 0, heading: 0, headingAccuracy: 0, speed: 0, speedAccuracy: 0, timestamp: DateTime(2025)),
     ];
     MapSnapshotService service = MapSnapshotService();
-    pngBytes = await service.makeSnapshot(locations, 600, 300, 20);
+    Uint8List? preview = await service.makeSnapshot(locations, 600, 300, 20);
+    if (preview != null) {
+      pngBytes = preview;
+    } else {
+      final ByteData bytes = await rootBundle.load('assets/images/no_preview.png');
+      pngBytes = bytes.buffer.asUint8List();
+    }
     logInfo("PNG size: ${pngBytes.length}");
     await showAdaptiveDialog(context: context, builder: (BuildContext context) {
       return AlertDialog(

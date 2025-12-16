@@ -1,13 +1,12 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:convert';
-import 'dart:typed_data';
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:mbtiles/mbtiles.dart';
@@ -35,7 +34,7 @@ class MapSnapshotService {
 
   //actual instance members
   final MapData _mapData = MapData();
-  Completer<vtr.Theme> _theme = new Completer();
+  final _theme = Completer();
 
   //load theme data
   Future<void> _loadTheme() async {
@@ -46,8 +45,11 @@ class MapSnapshotService {
     _theme.complete(vtr.ThemeReader().read(map));
   }
 
-  Future<Uint8List> makeSnapshot(
+  Future<Uint8List?> makeSnapshot(
       List<Location> path, int width, int height, int padding) async {
+
+    //No path = no location = no preview
+    if (path.isEmpty) return null;
 
     vtr.Theme theme = await _theme.future;
 
@@ -79,21 +81,20 @@ class MapSnapshotService {
       ],
     );
 
-    // Check if path is ok. Need a path with some extent
-    bool boundsOk = true;
-    if (latLngPath.length < 2) boundsOk = false;
-    if (boundsOk) {
-      LatLngBounds bounds = LatLngBounds.fromPoints(latLngPath);
-      if (bounds.west == bounds.east) boundsOk = false;
-      if (bounds.north == bounds.south) boundsOk = false;
+    // Make non-zero bounds
+    LatLngBounds bounds = LatLngBounds.fromPoints(latLngPath);
+    const epsilon = 0.00045; //roughly 50m lat / lng at equator
+    if (bounds.east - bounds.west < 2*epsilon) {  //well, this is wrong at wrapping point...
+      bounds.west -= epsilon;
+      bounds.east += epsilon;
     }
-    if (!boundsOk) {
-      final ByteData bytes = await rootBundle.load('assets/images/no_preview.png');
-      return bytes.buffer.asUint8List();
+    if (bounds.north - bounds.south < 2*epsilon) {
+      bounds.north += epsilon;
+      bounds.south -= epsilon;
     }
 
     // Set up map widget
-    MapController controller = new MapController();
+    MapController controller = MapController();
     MediaQueryData mediaQueryData = MediaQueryData(size: logicalSize, devicePixelRatio: 1.0);
     mediaQueryData.removePadding(
         removeLeft: true,
@@ -119,7 +120,7 @@ class MapSnapshotService {
           child: FlutterMap(
             mapController: controller,
             options: MapOptions(
-              initialCameraFit: CameraFit.coordinates(coordinates: latLngPath,padding: EdgeInsets.all(padding.toDouble())),
+              initialCameraFit: CameraFit.bounds(bounds: bounds, padding: EdgeInsets.all(padding.toDouble())),
             ),
             children: [
               VectorTileLayer(
@@ -168,32 +169,38 @@ class MapSnapshotService {
           child: map,
         )).attachToRenderTree(buildOwner);
     buildOwner.buildScope(rootElement);
-    // Delay if specified
-    final redraw = () {
-      // Build and finalize the render tree
-      buildOwner
-        ..buildScope(rootElement)
-        ..finalizeTree();
-      // Flush layout, compositing, and painting operations
-      pipelineOwner
-        ..flushLayout()
-        ..flushCompositingBits()
-        ..flushPaint();
-    };
-    redraw();
-    int numRedraws = 5;
-    Duration wait = Duration(milliseconds: 100);
-    for (int i = 0; i < numRedraws; i++) {
-      await Future.delayed(wait);
-      redraw();
-    }
 
-    // Capture the image and convert it to byte data
-    final image = await repaintBoundary.toImage(
-        pixelRatio: imageSize.width / logicalSize.width);
-    final byteData = await image.toByteData(format: ImageByteFormat.png);
-    // Return the image data as Uint8List
-    if (byteData != null) return byteData!.buffer.asUint8List();
-    return Uint8List(0);
+    try {
+      // Do some redraws to let the map finish rendering. Seems to need multiple repaints.
+      // TODO: Check if it is possible to determine if the map has finished
+      void redraw() {
+        // Build and finalize the render tree
+        buildOwner
+          ..buildScope(rootElement)
+          ..finalizeTree();
+        // Flush layout, compositing, and painting operations
+        pipelineOwner
+          ..flushLayout()
+          ..flushCompositingBits()
+          ..flushPaint();
+      }
+      redraw();
+      int numRedraws = 5;
+      Duration wait = const Duration(milliseconds: 100);
+      for (int i = 0; i < numRedraws; i++) {
+        await Future.delayed(wait);
+        redraw();
+      }
+
+      // Capture the image and convert it to byte data
+      final image = await repaintBoundary.toImage(
+          pixelRatio: imageSize.width / logicalSize.width);
+      final byteData = await image.toByteData(format: ImageByteFormat.png);
+      // Return the image data as Uint8List
+      if (byteData != null) return byteData.buffer.asUint8List();
+      return null;
+    } catch (_) {
+      return null;
+    }
   }
 }
