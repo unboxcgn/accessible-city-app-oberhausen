@@ -5,15 +5,12 @@ PODS:
     - ZIPFoundation
   - location (0.0.1):
     - Flutter
-  - objective_c (0.0.1):
-    - Flutter
   - ZIPFoundation (0.9.19)
 
 DEPENDENCIES:
   - Flutter (from `Flutter`)
   - flutter_logs (from `.symlinks/plugins/flutter_logs/ios`)
   - location (from `.symlinks/plugins/location/ios`)
-  - objective_c (from `.symlinks/plugins/objective_c/ios`)
 
 SPEC REPOS:
   trunk:
@@ -26,14 +23,11 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flutter_logs/ios"
   location:
     :path: ".symlinks/plugins/location/ios"
-  objective_c:
-    :path: ".symlinks/plugins/objective_c/ios"
 
 SPEC CHECKSUMS:
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
   flutter_logs: 5d0dca26963e0f30b11a995a764744ef77d5d428
   location: d5cf8598915965547c3f36761ae9cc4f4e87d22e
-  objective_c: 77e887b5ba1827970907e10e832eec1683f3431d
   ZIPFoundation: b8c29ea7ae353b309bc810586181fd073cb3312c
 
 PODFILE CHECKSUM: a3b6f034f0d79a209652621b979bc9d6707da7a1

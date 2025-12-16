@@ -1,4 +1,5 @@
 import 'package:accessiblecity/main.dart';
+import 'package:accessiblecity/view/record_screen_fluttermap.dart';
 
 import 'no_rides_pane.dart';
 import 'rides_pane.dart';
@@ -36,7 +37,7 @@ class _MainScreenState extends State<MainScreen> {
 
     bool haveCurrentRide = (Provider.of<Rides>(context).currentRide != null);
     if (haveCurrentRide) {
-      return const RecordScreen();
+      return const RecordScreenFM();
     }
     bool havePastRide = (Provider.of<Rides>(context).pastRides.isNotEmpty);
 

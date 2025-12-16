@@ -76,6 +76,14 @@ class MapData extends ChangeNotifier {
     return s;
   }
 
+  String filePathForMap(String basename) {
+    assert(_mapResourcesPath != null, "MapData: not initialized!");
+    String path = '$_mapResourcesPath/$basename.mbtiles';
+    File f = File(path);
+    logInfo('MapData: File $path exists ${f.existsSync()} length ${f.lengthSync()}');
+    return path;
+  }
+
   Future<void> _loadStyleData() async {
     assert (_mapResourcesPath != null, "MapData: not initialized!");
     _unzipAssetToMapDir("map-font.zip");
