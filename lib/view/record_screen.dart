@@ -43,45 +43,6 @@ class RecordScreenState extends State<RecordScreen> {
   }
 
   void _finishRide(context) async {
-    /* This is actually a workaround: flutter_maplibe_gl does not expose offscreen
-    rendering functions in its current form. We want some form of raster image
-    of the ride for the rides list view. So when finishing a ride, the map will
-    zoom out and take a screenshot when finishing.
-
-    This does not work for iOS. Need to find another way. All commented out but
-    RepaintBoundary left in for future experiments. If this approach does not
-    turn out successfully, the RepaintBoundary and all this code may go.
-
-    final mapContext = mapContainer.currentContext;
-    if (mapContext != null) {
-      final boundary = mapContext.findRenderObject() as RenderRepaintBoundary?;
-      if (boundary != null) {
-        final image = await boundary.toImage(pixelRatio: 1.0);
-
-        final ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-        final Uint8List pngBytes = byteData!.buffer.asUint8List();
-        _image = pngBytes;
-        logInfo("PNG size: ${pngBytes.length}");
-        await showAdaptiveDialog(context: context, builder: (BuildContext context) {
-          return AlertDialog(
-              content: Row(
-                  children: [
-                    Expanded(
-                      child: Image.memory(_image),
-                    ),
-                    TextButton(
-                        child: const Text('Abbrechen'),
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        }
-                    ),
-                  ]
-              )
-          );
-        });
-      }
-    }
-*/
     Provider.of<Rides>(context, listen: false).finishCurrentRide();
   }
 

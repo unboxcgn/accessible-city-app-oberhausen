@@ -1,3 +1,8 @@
+
+import 'dart:typed_data';
+
+import 'package:accessiblecity/services/map_snapshot_service.dart';
+
 import 'running_ride.dart';
 import 'finished_ride.dart';
 import '../logger.dart';
@@ -5,7 +10,11 @@ import '../services/sensor_service.dart';
 import 'package:flutter/widgets.dart';
 import 'package:sqflite/sqflite.dart';
 
-const dbVersion = 3;
+//version 1,2: unused
+//version 3: initially used, with annotation and location. First with upgrade support
+//version 4: snapshot added to ride
+
+const dbVersion = 4;
 
 class Rides extends ChangeNotifier {
 
@@ -19,15 +28,18 @@ class Rides extends ChangeNotifier {
   Rides._internal();
 
   RunningRide? _currentRide;
+  RunningRide? _finishingRide;  //recording is finished but not transferred to pastRides yet
+
   final List<FinishedRide> _pastRides = [];
   late Database _database;
 
   RunningRide? get currentRide => _currentRide;
+  RunningRide? get finishingRide => _finishingRide;
   List<FinishedRide> get pastRides => _pastRides;
 
   Future<void> initialize() async {
 //    final dbPath = await getDatabasesPath();
-    _database = await openDatabase('rides.db', version:dbVersion, onCreate: _dbCreateTables);
+    _database = await openDatabase('rides.db', version:dbVersion, onCreate: _dbCreateTables, onUpgrade: _dbUpgrade);
     await _dbLoadRides();
   }
 
@@ -53,10 +65,13 @@ class Rides extends ChangeNotifier {
       SensorService().stopRecording();
       RunningRide ride = _currentRide as RunningRide;
       ride.finish();
-      FinishedRide finishedRide = FinishedRide.fromRunningRide(ride, _database);
-      _pastRides.add(finishedRide);
-      logInfo("ride: added ride to past rides, now ${_pastRides.length}");
+      _finishingRide = ride;
       _currentRide = null;
+      notifyListeners();
+      Uint8List? snapshot = await MapSnapshotService().makeSnapshot(ride.locations, 600, 400, 20);
+      FinishedRide finishedRide = await FinishedRide.createFromRunningRide(ride, _database, snapshot);
+      _pastRides.add(finishedRide);
+      _finishingRide = null;
       notifyListeners();
     }
   }
@@ -68,6 +83,14 @@ class Rides extends ChangeNotifier {
     await _database.delete('location', where: 'rideId = ?', whereArgs: [ride.dbId]);
     await _database.delete('ride', where: 'uuid = ?', whereArgs: [ride.uuid]);
     notifyListeners();
+  }
+
+  Future<void> _dbUpgrade(db, oldVersion, newVersion) async {
+    if ((oldVersion <= 3) && (newVersion >=4)) {
+      logInfo("upgrading database from v3 to v4");
+      await db.execute('ALTER TABLE ride ADD COLUMN snapshot BLOB DEFAULT null');
+      logInfo("finished upgrading database from v3 to v4");
+    }
   }
 
   Future<void> _dbCreateTables(db, version) async {
@@ -92,7 +115,8 @@ class Rides extends ChangeNotifier {
         'pseudonymSeed INTEGER,'
         'syncAllowed INTEGER,'
         'editRevision INTEGER,'
-        'syncRevision INTEGER'
+        'syncRevision INTEGER,'
+        'snapshot BLOB'
         ')');
     await db.execute('CREATE TABLE IF NOT EXISTS location('
         'id INTEGER PRIMARY KEY AUTOINCREMENT,'

@@ -36,6 +36,7 @@ class FinishedRide extends ChangeNotifier {
   late int _vehicleType;
   late int _flags;
   late String _comment;
+  late Uint8List? _snapshot;
 
   final List<Location> _locations = []; //empty means not loaded or no locations found. See if we need to save a ride without locations.
   final List<Annotation> _annotations = []; //empty means not loaded or no annotations.
@@ -66,6 +67,7 @@ class FinishedRide extends ChangeNotifier {
   int get syncRevision => _syncRevision;
   List<Location> get locations => _locations;
   List<Annotation> get annotations => _annotations;
+  Uint8List? get snapshot => _snapshot;
 
   set syncRevision(int rev) {
     if (_syncRevision != rev) {
@@ -85,7 +87,8 @@ class FinishedRide extends ChangeNotifier {
     }
   }
 
-  FinishedRide.fromRunningRide(RunningRide rr, Database db) {
+  /* private constructor. Call factory method createFromRunningRide instead. */
+  FinishedRide._fromRunningRide(RunningRide rr, Database db, Uint8List? snapshot) {
     _db = db;
     _uuid = const Uuid().v4();
     _startDate = rr.startDate;
@@ -108,26 +111,33 @@ class FinishedRide extends ChangeNotifier {
     _flags = 0;
     _comment = User().rideComment;
     _syncAllowed = true;
+    _snapshot = snapshot;
     _editRevision = 1;
     _syncRevision = 0;
 
     _locations.addAll(rr.locations);
     _annotations.addAll(rr.annotations);
     logInfo("building finished ride from running ride with ${_locations.length} locations");
+  }
+
+  static Future<FinishedRide> createFromRunningRide(RunningRide rr, Database db, Uint8List? snapshot) async {
+    FinishedRide ride = FinishedRide._fromRunningRide(rr, db, snapshot);
     try {
-      _genKeyPair().then((_) { //gen key pair then persist
-        logInfo("Key pair generated");
-        _dbUpsertRide(updateData: true).then((_) {
-          logInfo("Ride upserted");
-          SyncService().addRide(this);
-        });
-      });
+      await ride._genKeyPair();
+      logInfo("Key pair generated");
+      await ride._dbUpsertRide(updateData: true);
+      SyncService().addRide(ride);
+      logInfo("Ride upserted");
     }
     catch (e) {
       logErr("Ride persist and sync failed: $e");
     }
+    return ride;
   }
 
+
+  /* the object returned from this call is already persisted and in the sync service,
+  so no persistAndSync call is needed */
   FinishedRide.fromDbEntry(Database db, Map<String, Object?> map) {
     _db = db;
     logInfo("DATABASE: Reading ride $map");
@@ -176,6 +186,8 @@ class FinishedRide extends ChangeNotifier {
     _editRevision = map['editRevision'] as int;
     assert(map['syncRevision'] is int);
     _syncRevision = map['syncRevision'] as int;
+    _snapshot = map['snapshot'] as Uint8List?;
+    if (_snapshot?.isEmpty ?? false) _snapshot = null;  //convert empty to null
 
     /* Later on, locations should be lazily loaded when needed, e.g. using
      requestLocations() / releaseLocations() pairs. Right now, we just load them
@@ -263,7 +275,12 @@ class FinishedRide extends ChangeNotifier {
       'syncAllowed':_syncAllowed ? 1 : 0,
       'editRevision':_editRevision,
       'syncRevision':_syncRevision,
+      'snapshot': (_snapshot != null) ? _snapshot! : Uint8List(0)
+      //empty list seen as null, so that we can delete the image. Documentation is not clear on how to specify null blobs.
     };
+    if (snapshot != null) {
+      
+    }
     final haveId = _dbId >= 0;
     if (haveId) {
       map['id'] = _dbId;
