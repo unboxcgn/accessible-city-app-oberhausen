@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:typed_data';
-import 'dart:ui' as ui;
 
 import 'package:accessiblecity/enums.dart';
 import 'package:accessiblecity/model/running_ride.dart';
@@ -17,7 +15,6 @@ import 'package:provider/provider.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/rendering.dart';
 
 class RecordScreen extends StatefulWidget {
   const RecordScreen({super.key});
@@ -33,8 +30,6 @@ class RecordScreenState extends State<RecordScreen> {
   bool _trackUserLocation = true;
   UserLocation? _lastUserLocation;
   static GlobalKey mapContainer = GlobalKey();
-  Uint8List _image = Uint8List(0);
-
 
   @override
   void initState() {

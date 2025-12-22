@@ -1,3 +1,5 @@
+import 'package:flutter/services.dart';
+
 import 'logger.dart';
 import 'model/user.dart';
 import 'model/map_data.dart';
@@ -13,6 +15,9 @@ import 'package:provider/provider.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initLogger();
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+  ]);
   runApp(
       MultiProvider(providers: [
         ChangeNotifierProvider(create: (_) => User()),
@@ -84,27 +89,45 @@ class MyAppState extends State<MyApp> {
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: Colors.deepPurple,
-            surface: Colors.deepPurple.shade50,
+          textTheme: const TextTheme(
+            displayLarge: TextStyle(fontFamily: 'BarlowCondensed', fontSize: 56, fontWeight: FontWeight.w700, height: 1.1),
+            displayMedium: TextStyle(fontFamily: 'BarlowCondensed', fontSize: 45, fontWeight: FontWeight.w700, height: 1.1),
+            displaySmall: TextStyle(fontFamily: 'BarlowCondensed', fontSize: 36, fontWeight: FontWeight.w700, height: 1.1),
+            headlineLarge: TextStyle(fontFamily: 'BarlowCondensed', fontSize: 32, fontWeight: FontWeight.w700, height: 1.1),
+            headlineMedium: TextStyle(fontFamily: 'BarlowCondensed', fontSize: 28, fontWeight: FontWeight.w700, height: 1.1),
+            headlineSmall: TextStyle(fontFamily: 'BarlowCondensed', fontSize: 24, fontWeight: FontWeight.w700, height: 1.1),
+            titleLarge: TextStyle(fontFamily: 'BarlowCondensed', fontSize: 22, fontWeight: FontWeight.w700, height: 1.1),
+            titleMedium: TextStyle(fontFamily: 'BarlowCondensed', fontSize: 18, fontWeight: FontWeight.w700, height: 1.1),
+            titleSmall: TextStyle(fontFamily: 'BarlowCondensed', fontSize: 16, fontWeight: FontWeight.w700, height: 1.1),
+            labelLarge: TextStyle(fontFamily: 'InclusiveSans', fontSize: 18, fontWeight: FontWeight.w400, height: 1.1),
+            labelMedium: TextStyle(fontFamily: 'InclusiveSans', fontSize: 16, fontWeight: FontWeight.w400, height: 1.1),
+            labelSmall: TextStyle(fontFamily: 'InclusiveSans', fontSize: 14, fontWeight: FontWeight.w400, height: 1.1),
+            bodyLarge: TextStyle(fontFamily: 'InclusiveSans', fontSize: 18, fontWeight: FontWeight.w400, height: 1.2),
+            bodyMedium: TextStyle(fontFamily: 'InclusiveSans', fontSize: 16, fontWeight: FontWeight.w400, height: 1.2),
+            bodySmall: TextStyle(fontFamily: 'InclusiveSans', fontSize: 14, fontWeight: FontWeight.w400, height: 1.2),
           ),
-          appBarTheme: AppBarThemeData(
-            backgroundColor: Colors.deepPurple.shade50,
-          ),
-          bottomAppBarTheme: const BottomAppBarThemeData(
-            color: Colors.transparent,
-          ),
-          chipTheme: ChipThemeData(
+          colorScheme:
+            ColorScheme(brightness: Brightness.light,
+                primary: Color(0xffB4AAEF),
+                onPrimary: Color(0xff000000),
+                secondary: Color(0xff46DA67),
+                onSecondary: Color(0xff000000),
+                error: Color(0xffBA1A1A),
+                onError: Color(0xffffffff),
+                surface: Color(0xffFEF7FF),
+                onSurface: Color(0xff000000)
+            ),
+          chipTheme: const ChipThemeData(
             backgroundColor: Colors.white,
-            selectedColor: const Color.fromARGB(255,100,255,100),
+            selectedColor: Color.fromARGB(255, 100, 255, 219),
             padding: EdgeInsets.all(0),
-            side: const BorderSide(
+            side: BorderSide(
               color: Colors.black, // Border color
               width: 2, // Border width
             )
           ),
-          cardTheme: CardThemeData(
-            color: Colors.deepPurple.shade200,
+          cardTheme: const CardThemeData(
+            color: Color.fromARGB(255,179,157,219),
             shadowColor: Colors.black,
             shape: RoundedRectangleBorder(
               side:BorderSide(color: Colors.black, width: 2),
@@ -122,7 +145,16 @@ class MyAppState extends State<MyApp> {
               ),
             ),
           ),
+          textButtonTheme: TextButtonThemeData(
+            style: ButtonStyle(
+              foregroundColor: WidgetStatePropertyAll(Colors.black)
+            ),
+          ),
+          appBarTheme: AppBarThemeData(
+            centerTitle: true,
+          ),
         ),
+
         home: Navigator(
             pages: contents,
             onDidRemovePage: _didRemovePage

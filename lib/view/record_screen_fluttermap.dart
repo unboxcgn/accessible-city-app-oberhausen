@@ -1,10 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 
-import 'package:accessiblecity/enums.dart';
 import 'package:accessiblecity/model/running_ride.dart';
 import 'package:accessiblecity/services/map_snapshot_service.dart';
 import 'package:flutter/rendering.dart';
@@ -16,11 +14,9 @@ import '../services/sensor_service.dart';
 import '../model/rides.dart';
 import '../model/map_data.dart';
 import '../model/location.dart';
-import '../model/annotation.dart' as ride_annotation;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter/cupertino.dart';
 
 // import 'package:flutter/rendering.dart';
 // import 'dart:typed_data';
@@ -42,10 +38,9 @@ class RecordScreenFM extends StatefulWidget {
 
 class RecordScreenStateFM extends State<RecordScreenFM> {
   final MapData _mapData = MapData();
-  bool _trackUserLocation = true;
-  static GlobalKey _mapContainer = GlobalKey();
+  static final GlobalKey _mapContainer = GlobalKey();
   final MapController _controller = MapController();
-  vtr.Theme? _theme = null;
+  vtr.Theme? _theme;
 
   @override
   void initState() {
@@ -89,7 +84,7 @@ class RecordScreenStateFM extends State<RecordScreenFM> {
     }
     Rides rides = Provider.of<Rides>(context, listen: false);
     RunningRide ride = rides.currentRide!;
-    List<Location> locations = ride.locations!;
+    List<Location> locations = ride.locations;
     locations = [
       Location(latitude: 50.9365, longitude: 6.9398, accuracy: 0, altitude: 0, altitudeAccuracy: 0, heading: 0, headingAccuracy: 0, speed: 0, speedAccuracy: 0, timestamp: DateTime(2025)),
 //      Location(latitude: 50.9375, longitude: 6.9398, accuracy: 0, altitude: 0, altitudeAccuracy: 0, heading: 0, headingAccuracy: 0, speed: 0, speedAccuracy: 0, timestamp: DateTime(2025)),
@@ -155,10 +150,10 @@ class RecordScreenStateFM extends State<RecordScreenFM> {
     scrollGesturesEnabled: !_trackUserLocation,
     minMaxZoomPreference: const MinMaxZoomPreference(10,20),
 */
-    Widget map = (_theme == null) ?  CircularProgressIndicator() :
+    Widget map = (_theme == null) ?  const CircularProgressIndicator() :
       FlutterMap(
         mapController: _controller,
-        options: MapOptions(
+        options: const MapOptions(
           initialCenter: LatLng(50.9365, 6.9398),
           initialZoom: 16.0,
         ),

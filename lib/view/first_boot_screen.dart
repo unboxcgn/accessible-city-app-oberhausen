@@ -1,5 +1,3 @@
-import 'package:accessiblecity/constants.dart';
-
 import '../model/user.dart';
 
 import 'package:flutter/material.dart';
@@ -17,50 +15,48 @@ class FirstBootScreen extends StatelessWidget {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return Scaffold(
-      appBar: AppBar(
-        title: Text(Constants.appTitle),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text('Schön, dass du dabei bist!',
-                    style: Theme.of(context).textTheme.headlineLarge,
+      backgroundColor: Theme.of(context).primaryColor,
+//      appBar: AppBar(
+//        title: const Text(Constants.appTitle),
+//      ),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                SizedBox(height:64),
+                Image.asset('assets/images/firststart_logo.png'),
+                SizedBox(height:24),
+                Text('Gemeinsam machen wir Städte barrierefreier.',
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text('Wir wollen mit Bewegungsdaten die Wege von Menschen mit Mobilitätseinschränkungen in Köln und Oberhausen analysieren und so bessere Wege für alle schaffen.',
-                    style: Theme.of(context).textTheme.bodyMedium,
+                SizedBox(height:16),
+                Text('Accessible City sammelt während deiner Fahrt anonymisierte Bewegungs- und Sensordaten. So erkennen wir wichtige Strecken und Hindernisse für Rollstuhlfahrende. Deine Daten sind anonym. Rückschlüsse auf dich sind nicht möglich.',
+                  style: Theme.of(context).textTheme.bodyLarge,
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text('Dafür werden deine Bewegungsdaten auf dem Handy gesammelt und anonymisiert auf den Accessible-City-Server hochgeladen.',
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-              ),
-              CheckboxListTile(
-                  controlAffinity: ListTileControlAffinity.leading,
-                  title: Text("Ja, ihr dürft meine Daten verwenden", style: Theme.of(context).textTheme.labelLarge),
-                  value: Provider.of<User>(context).uploadConsent,
-                  onChanged: (val) {if (val!=null) { Provider.of<User>(context, listen:false).uploadConsent = val;} }),
-              OutlinedButton(
-//                style: ElevatedButton.styleFrom(
-//                  backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-//                ),
-                onPressed: Provider.of<User>(context).uploadConsent ? () {
-                  Provider.of<User>(context, listen:false).firstStart = false;
-                } : null,
-                child: Text("Los geht's",style: Theme.of(context).textTheme.labelLarge),
-              )
-            ]
+                SizedBox(height:24),
+                CheckboxListTile(
+                    controlAffinity: ListTileControlAffinity.leading,
+                    title: Text("Ja, meine anonymisierten Daten dürfen verwendet werden",
+                        style: Theme.of(context).textTheme.bodyLarge
+                    ),
+                    value: Provider.of<User>(context).uploadConsent,
+                    onChanged: (val) {if (val!=null) { Provider.of<User>(context, listen:false).uploadConsent = val;} }),
+              ]
+          ),
         ),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      ),
+      bottomNavigationBar:
+        BottomAppBar(
+          child: OutlinedButton(
+            onPressed: Provider.of<User>(context).uploadConsent ? () {
+              Provider.of<User>(context, listen:false).firstStart = false;
+            } : null,
+            child: Text("Start",style: Theme.of(context).textTheme.labelLarge),
+          ),
+        ),
     );
   }
 }

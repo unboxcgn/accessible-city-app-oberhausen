@@ -1,4 +1,3 @@
-import 'package:accessiblecity/logger.dart';
 import 'package:accessiblecity/view/rides_pane.dart';
 import 'package:flutter_test/flutter_test.dart';
 

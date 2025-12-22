@@ -11,7 +11,7 @@ class Constants {
   static const String eveningRide = "Weg am Abend";
   static const String nightRide = "Weg in der Nacht";
   static const String longRide = "Langer Weg";
-  static const String startRecording = "Weg aufzeichnen";
+  static const String startRecording = "Weg aufnehmen";
   static const String endRecording = "Weg beenden";
   static const String recording = "Wegeaufzeichnung";
   static const String annotation = "Annotation";
@@ -27,5 +27,5 @@ class Constants {
   static const double syncCutoffM = 70.0;
   static const double syncRandomizeS = 1200.0;
   static const int minSyncIntervalMS = 200; //minimum interval (200ms) for network activities
-  static const int maxSyncIntervalMS = 600000; //maximum interval (10 min) after exponential backup
+  static const int maxSyncIntervalMS = 600000; //maximum interval (10 min) after exponential backoff
 }

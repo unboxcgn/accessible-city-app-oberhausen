@@ -118,95 +118,69 @@ class _RidesPaneState extends State<RidesPane> {
     double avgSpeed = 3600.0 * totalDistanceM / duration.inMilliseconds;
 
     return SingleChildScrollView(
-        child: Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Text('Deine Statistik', style: Theme.of(context).textTheme.titleLarge),
-        ),
-        Table(
-          border: const TableBorder(
-              horizontalInside: BorderSide(width: 1, style: BorderStyle.solid),
-              top: BorderSide(width: 1, style: BorderStyle.solid),
-              bottom: BorderSide(width: 1, style: BorderStyle.solid)),
-          columnWidths: const <int, TableColumnWidth>{
-            0: IntrinsicColumnWidth(),
-            1: IntrinsicColumnWidth(),
-          },
-          children:<TableRow>[
-            TableRow(
-                children:[
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text('Aufgezeichnete Wege', style: Theme.of(context).textTheme.labelLarge, textAlign: TextAlign.right),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text('$numRides', style: Theme.of(context).textTheme.bodyMedium),
-                  ),
-                ]
-            ),
-            TableRow(
-                children:[
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text('Strecke gesamt', style: Theme.of(context).textTheme.labelLarge, textAlign: TextAlign.right,),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text('${NumberFormat.decimalPatternDigits(decimalDigits:1).format(totalDistanceM/1000)} km', style: Theme.of(context).textTheme.bodyMedium),
-                  ),
-                ]
-            ),
-            TableRow(
-                children:[
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text('Durchschnittsgeschwindigkeit', style: Theme.of(context).textTheme.labelLarge, textAlign: TextAlign.right,),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text('${NumberFormat.decimalPatternDigits(decimalDigits:1).format(avgSpeed)} km/h', style: Theme.of(context).textTheme.bodyMedium),
-                  ),
-                ]
-            ),
-            TableRow(
-                children:[
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text('Zeit gesamt', style: Theme.of(context).textTheme.labelLarge, textAlign: TextAlign.right,),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text('${duration.inHours}h ${duration.inMinutes.remainder(60).toString().padLeft(2,"0")}m ${duration.inSeconds.remainder(60).toString().padLeft(2,"0")}s', style: Theme.of(context).textTheme.bodyMedium),
-
-                  ),
-                ]
-            ),
-          ]
-        ),
-        Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Text('Deine Fahrten', style: Theme.of(context).textTheme.titleLarge),
-        ),
-        if (finishingRide != null) const Center(child:CircularProgressIndicator()),
-        AnimatedList(
-          reverse: true,  ///TODO: CHECK **********
-          key: _listKey,
-          padding: const EdgeInsets.all(8),
-          initialItemCount: numRides,
-          shrinkWrap: true,
-          itemBuilder: (BuildContext context, int index, Animation<double> animation) {
-            return _buildAnimatedRideDigest(rides[index], animation);
-          },
-//            separatorBuilder: (BuildContext context, int index) => const Divider(),
-          physics: const NeverScrollableScrollPhysics(),
-        ),
-        const Padding(
-          padding: EdgeInsets.only(top:90.0),
+        child: Padding(
+          padding: const EdgeInsets.only(left: 16, right: 16, top:8, bottom: 8),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.list_outlined),
+                  SizedBox(width:8),
+                  Text('$numRides', style: TextStyle(fontWeight: FontWeight.bold),),
+                  SizedBox(width:8),
+                  Text('Wege gesamt'),
+                ],
+              ),
+              SizedBox(height:5),
+              Row(
+                children: [
+                  Icon(Icons.multiple_stop_outlined),
+                  SizedBox(width:8),
+                  Text('${NumberFormat.decimalPatternDigits(decimalDigits:1).format(totalDistanceM/1000)}', style: TextStyle(fontWeight: FontWeight.bold),),
+                  SizedBox(width:8),
+                  Text('km zurückgelegt'),
+                ],
+              ),
+              SizedBox(height:5),
+              Row(
+                children: [
+                  Icon(Icons.hide_source_outlined),
+                  SizedBox(width:8),
+                  Text('${NumberFormat.decimalPatternDigits(decimalDigits:1).format(avgSpeed)}', style: TextStyle(fontWeight: FontWeight.bold),),
+                  SizedBox(width:8),
+                  Text('km/h Durchschnittsgeschwindigkeit'),
+                ],
+              ),
+              SizedBox(height:5),
+              Row(
+                children: [
+                  Icon(Icons.access_time_outlined),
+                  SizedBox(width:8),
+                  Text('${duration.inHours}h ${duration.inMinutes.remainder(60).toString().padLeft(2,"0")}m ${duration.inSeconds.remainder(60).toString().padLeft(2,"0")}s', style: TextStyle(fontWeight: FontWeight.bold),),
+                  SizedBox(width:8),
+                  Text('aufgezeichnet'),
+                ],
+              ),
+              SizedBox(height:10),
+              if (finishingRide != null) const Center(child:CircularProgressIndicator()),
+              SizedBox(height:10),
+              AnimatedList(
+                reverse: true,  ///TODO: CHECK **********
+                key: _listKey,
+                initialItemCount: numRides,
+                shrinkWrap: true,
+                itemBuilder: (BuildContext context, int index, Animation<double> animation) {
+                  return _buildAnimatedRideDigest(rides[index], animation);
+                },
+                //            separatorBuilder: (BuildContext context, int index) => const Divider(),
+                physics: const NeverScrollableScrollPhysics(),
+              ),
+              const Padding(
+                padding: EdgeInsets.only(top:90.0),
+              )
+            ],
+          ),
         )
-      ],
-    )
     ); // This trailing comma makes auto-formatting nicer for build methods.
   }
 
@@ -214,12 +188,12 @@ class _RidesPaneState extends State<RidesPane> {
     return ScaleTransition(
       scale: animation.drive(
         CurveTween(
-          curve: Interval(0.5, 1.0, curve: Curves.ease)
+          curve: const Interval(0.5, 1.0, curve: Curves.ease)
         )),
       child: FadeTransition(
         opacity: animation.drive(
           CurveTween(
-            curve: Interval(0.5, 1.0, curve: Curves.ease)
+            curve: const Interval(0.5, 1.0, curve: Curves.ease)
           )),
         child: RideDigestView(ride: ride)
       ),
@@ -245,6 +219,7 @@ class RideDigestView extends StatelessWidget {
       child: Padding (
         padding: const EdgeInsetsGeometry.all(10),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children:[
@@ -257,33 +232,23 @@ class RideDigestView extends StatelessWidget {
                 ),
               ],
             ),
-            Table(
-              border: const TableBorder(
-                horizontalInside: BorderSide(width: 1, style: BorderStyle.solid),
-                top: BorderSide(width: 1, style: BorderStyle.solid),
-              ),
-              children: <TableRow>[
-                TableRow(
-                  children: [
-                    Text("Datum", style: Theme.of(context).textTheme.labelLarge),
-                    Text("Start", style: Theme.of(context).textTheme.labelLarge),
-                    Text("Dauer", style: Theme.of(context).textTheme.labelLarge),
-                    Text("Strecke", style: Theme.of(context).textTheme.labelLarge),
-                    Text("Schnitt", style: Theme.of(context).textTheme.labelLarge),
-                  ]
-                ),
-                TableRow(
-                  children: [
-                    Text(DateFormat('dd.MM.yy').format(_ride.startDate)),
-                    Text(DateFormat('Hm').format(_ride.startDate)),
-                    Text(dur),
-                    Text("${NumberFormat.decimalPatternDigits(decimalDigits:1).format(_ride.totalDistanceM/1000)} km"),
-                    Text("${NumberFormat.decimalPatternDigits(decimalDigits:1).format(_ride.averageSpeedKmh)} km/h"),
-                  ]
-                ),
-              ]
-            ),
+            SizedBox(height: 5),
+            Text("${DateFormat('dd.MM.yy').format(_ride.startDate)}, ${DateFormat('Hm').format(_ride.startDate)} Uhr"),
+            SizedBox(height: 5),
             if (_ride.snapshot != null) Image.memory(_ride.snapshot!),
+            SizedBox(height: 5),
+            Row(
+              children: [
+                Icon(Icons.swap_horiz),
+                Text("${NumberFormat.decimalPatternDigits(decimalDigits:1).format(_ride.totalDistanceM/1000)} km"),
+                Spacer(flex: 1),
+                Icon(Icons.alarm_on),
+                Text(dur),
+                Spacer(flex: 1),
+                Icon(Icons.hide_source),
+                Text("${NumberFormat.decimalPatternDigits(decimalDigits:1).format(_ride.averageSpeedKmh)} km/h"),
+              ],
+            ),
           ]
         )
       )

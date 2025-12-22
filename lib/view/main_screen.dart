@@ -65,7 +65,7 @@ class _MainScreenState extends State<MainScreen> {
             _startRecording(context);
           },
           label: const Text(Constants.startRecording),
-          icon: const Icon(Icons.play_arrow),
+          icon: const Icon(Icons.radio_button_checked),
         ),
       ),
     );

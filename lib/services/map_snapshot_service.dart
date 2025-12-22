@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:convert';
-import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -185,7 +184,7 @@ class MapSnapshotService {
           ..flushPaint();
       }
       redraw();
-      int numRedraws = 5;
+      int numRedraws = 10;
       Duration wait = const Duration(milliseconds: 100);
       for (int i = 0; i < numRedraws; i++) {
         await Future.delayed(wait);

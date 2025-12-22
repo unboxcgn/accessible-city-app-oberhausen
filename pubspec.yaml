@@ -79,6 +79,60 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
+  fonts:
+    - family: InclusiveSans
+      fonts:
+        - asset: assets/fonts/InclusiveSans/InclusiveSans-VariableFont_wght.ttf
+        - asset: assets/fonts/InclusiveSans/InclusiveSans-Italic-VariableFont_wght.ttf
+          style: italic
+    - family: BarlowCondensed
+      fonts:
+        - asset: assets/fonts/BarlowCondensed/BarlowCondensed-Thin.ttf
+          weight: 100
+        - asset: assets/fonts/BarlowCondensed/BarlowCondensed-ExtraLight.ttf
+          weight: 200
+        - asset: assets/fonts/BarlowCondensed/BarlowCondensed-Light.ttf
+          weight: 300
+        - asset: assets/fonts/BarlowCondensed/BarlowCondensed-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/BarlowCondensed/BarlowCondensed-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/BarlowCondensed/BarlowCondensed-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/BarlowCondensed/BarlowCondensed-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/BarlowCondensed/BarlowCondensed-ExtraBold.ttf
+          weight: 800
+        - asset: assets/fonts/BarlowCondensed/BarlowCondensed-Black.ttf
+          weight: 900
+        - asset: assets/fonts/BarlowCondensed/BarlowCondensed-ThinItalic.ttf
+          weight: 100
+          style: italic
+        - asset: assets/fonts/BarlowCondensed/BarlowCondensed-ExtraLightItalic.ttf
+          weight: 200
+          style: italic
+        - asset: assets/fonts/BarlowCondensed/BarlowCondensed-LightItalic.ttf
+          weight: 300
+          style: italic
+        - asset: assets/fonts/BarlowCondensed/BarlowCondensed-Italic.ttf
+          weight: 400
+          style: italic
+        - asset: assets/fonts/BarlowCondensed/BarlowCondensed-MediumItalic.ttf
+          weight: 500
+          style: italic
+        - asset: assets/fonts/BarlowCondensed/BarlowCondensed-SemiBoldItalic.ttf
+          weight: 600
+          style: italic
+        - asset: assets/fonts/BarlowCondensed/BarlowCondensed-BoldItalic.ttf
+          weight: 700
+          style: italic
+        - asset: assets/fonts/BarlowCondensed/BarlowCondensed-ExtraBoldItalic.ttf
+          weight: 800
+          style: italic
+        - asset: assets/fonts/BarlowCondensed/BarlowCondensed-BlackItalic.ttf
+          weight: 900
+          style: italic
+
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/images/
