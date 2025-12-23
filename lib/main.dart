@@ -109,6 +109,7 @@ class MyAppState extends State<MyApp> {
           colorScheme:
             ColorScheme(brightness: Brightness.light,
                 primary: Color(0xffB4AAEF),
+                primaryContainer: Color(0xffE6DEFF),
                 onPrimary: Color(0xff000000),
                 secondary: Color(0xff46DA67),
                 onSecondary: Color(0xff000000),
@@ -119,7 +120,7 @@ class MyAppState extends State<MyApp> {
             ),
           chipTheme: const ChipThemeData(
             backgroundColor: Colors.white,
-            selectedColor: Color.fromARGB(255, 100, 255, 219),
+            selectedColor: Color(0xff46DA67),
             padding: EdgeInsets.all(0),
             side: BorderSide(
               color: Colors.black, // Border color
@@ -138,7 +139,7 @@ class MyAppState extends State<MyApp> {
             style: OutlinedButton.styleFrom(
               foregroundColor: Colors.black,
               disabledBackgroundColor: Colors.transparent,
-              backgroundColor: const Color.fromARGB(255,100,255,100),
+              backgroundColor: Color(0xff46DA67),
               side: const BorderSide(
                 color: Colors.black, // Border color
                 width: 3, // Border width
@@ -153,6 +154,10 @@ class MyAppState extends State<MyApp> {
           appBarTheme: AppBarThemeData(
             centerTitle: true,
           ),
+          bottomAppBarTheme: BottomAppBarThemeData(
+            color: Colors.transparent,
+          ),
+
         ),
 
         home: Navigator(

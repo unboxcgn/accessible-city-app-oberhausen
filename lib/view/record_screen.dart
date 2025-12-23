@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:accessiblecity/enums.dart';
 import 'package:accessiblecity/model/running_ride.dart';
@@ -43,55 +44,60 @@ class RecordScreenState extends State<RecordScreen> {
 
   @override
   Widget build(BuildContext context) {
+    File file = File(_mapData.styleJsonPath);
+    String contents = file.readAsStringSync();
+    logInfo("MAPISSUE: Style path expected at ${_mapData.styleJsonPath} len ${file.lengthSync()} contents $contents");
+
     return Scaffold(
-        appBar: AppBar(
-          title: const Text(Constants.recording),
-        ),
-        body: Center(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children:[
-              Expanded(
-                child: RepaintBoundary (
-                    key: mapContainer,
-                    child:MapLibreMap(
-                      styleString: _mapData.styleJsonPath,
-                      onMapCreated: _mapCreated,
-                      onUserLocationUpdated: _userLocationUpdated,
-                      onStyleLoadedCallback: _styleLoaded,
-                      initialCameraPosition: const CameraPosition(target: LatLng(50.9365, 6.9398), zoom: 16.0),
-                      trackCameraPosition: false,
-                      zoomGesturesEnabled: true,
-                      rotateGesturesEnabled: true,
-                      dragEnabled: false,
-                      myLocationEnabled: true,
-                      compassEnabled: true,
-                      myLocationTrackingMode: MyLocationTrackingMode.none,
-                      myLocationRenderMode: MyLocationRenderMode.normal,
-                      doubleClickZoomEnabled: false,
-                      scrollGesturesEnabled: !_trackUserLocation,
-                      minMaxZoomPreference: const MinMaxZoomPreference(10,20),
-                    ),
+/*      appBar: AppBar(
+        title: const Text(Constants.recording),
+      ),
+*/
+      body: Center(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children:[
+            Expanded(
+              child: RepaintBoundary (
+                key: mapContainer,
+                child:MapLibreMap(
+                  styleString: _mapData.styleJsonPath,
+                  onMapCreated: _mapCreated,
+                  onUserLocationUpdated: _userLocationUpdated,
+                  onStyleLoadedCallback: _styleLoaded,
+                  initialCameraPosition: const CameraPosition(target: LatLng(50.9365, 6.9398), zoom: 16.0),
+                  trackCameraPosition: false,
+                  zoomGesturesEnabled: true,
+                  rotateGesturesEnabled: true,
+                  dragEnabled: false,
+                  myLocationEnabled: true,
+                  compassEnabled: true,
+                  myLocationTrackingMode: MyLocationTrackingMode.none,
+                  myLocationRenderMode: MyLocationRenderMode.normal,
+                  doubleClickZoomEnabled: false,
+                  scrollGesturesEnabled: !_trackUserLocation,
+                  minMaxZoomPreference: const MinMaxZoomPreference(10,20),
                 ),
               ),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: InkWell(
+            ),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: InkWell(
                   child: Text(
                       Constants.mapAttribution,
                       style: Theme.of(context).textTheme.bodySmall),
                   onDoubleTap: () => launchUrl(Uri.parse('https://openstreetmap.org/copyright'))
-                ),
               ),
-              Padding(
-                padding: const EdgeInsets.only(bottom:20.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(2.0),
-                      child: TextButton(
+            ),
+            Padding(
+              padding: const EdgeInsets.only(bottom:20.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(2.0),
+                    child: TextButton(
                         onPressed: _toggleLocationTracking,
                         child: Column(
                           children: [
@@ -99,43 +105,48 @@ class RecordScreenState extends State<RecordScreen> {
                             const Text(Constants.trackLocation),
                           ],
                         )
-                      ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(2.0),
-                      child: TextButton(
-                          onPressed: () {
-                            if (_lastUserLocation != null) {
-                              showAdaptiveDialog(context: context, builder: _annotationDialogBuilder);
-                            }
-                          },
-                          child: const Column(
-                            children: [
-                              Icon(Icons.comment),
-                              Text(Constants.annotation),
-                            ],
-                          )
-                      ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(2.0),
+                    child: TextButton(
+                        onPressed: () {
+                          if (_lastUserLocation != null) {
+                            showModalBottomSheet(context: context,
+                              backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                              isDismissible: false,
+                              builder: _annotationDialogBuilder,
+                            );
+//                              showAdaptiveDialog(context: context, builder: _annotationDialogBuilder);
+                          }
+                        },
+                        child: const Column(
+                          children: [
+                            Icon(Icons.comment),
+                            Text(Constants.annotation),
+                          ],
+                        )
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(2.0),
-                      child: TextButton(
-                          onPressed: () { _finishRide(context); },
-                          child: const Column(
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(2.0),
+                    child: TextButton(
+                        onPressed: () { _finishRide(context); },
+                        child: const Column(
                             children: [
                               Icon(Icons.stop_circle),
                               Text(Constants.endRecording),
                             ]
-                          )
-                      ),
+                        )
                     ),
-                  ],
-                ),
-              )
-            ],
-          ),
-        ), // This trailing comma makes auto-formatting nicer for build methods.
-      );
+                  ),
+                ],
+              ),
+            )
+          ],
+        ),
+      ), // This trailing comma makes auto-formatting nicer for build methods.
+    );
   }
 
   void _toggleLocationTracking() {
@@ -164,7 +175,7 @@ class RecordScreenState extends State<RecordScreen> {
         bearing = pos.bearing;
       }
       mapController.animateCamera(CameraUpdate.newCameraPosition(
-        CameraPosition(target: location.position, zoom: zoom, bearing: bearing))
+          CameraPosition(target: location.position, zoom: zoom, bearing: bearing))
       );
     }
   }
@@ -182,7 +193,7 @@ class RecordScreenState extends State<RecordScreen> {
     for (final entry in maps) {
       logInfo('MapData: adding source $entry -> ${_mapData.urlForMap(entry)}');
       mapController.addSource(entry,
-        VectorSourceProperties(url: _mapData.urlForMap(entry))
+          VectorSourceProperties(url: _mapData.urlForMap(entry))
       );
     }
     //trigger camera movement on ios (should work without this, but it doesn't)
@@ -196,79 +207,81 @@ class RecordScreenState extends State<RecordScreen> {
   }
 
 
-    Widget _annotationDialogBuilder(BuildContext context) {
+  Widget _annotationDialogBuilder(BuildContext context) {
     TextEditingController textEditingController = TextEditingController();
     Set<AnnotationTag> tags = {};
     int severity = 50;
 
     return StatefulBuilder(
-       builder: (context, setState) {
+        builder: (context, setState) {
 
-         List<Widget> tagButtons = [];
-         for (final anno in AnnotationTag.values) {
+          List<Widget> tagButtons = [];
+          for (final anno in AnnotationTag.values) {
             final chip = FilterChip(
-              label: Text(anno.label),
-              selected:(tags.contains((anno))),
-              onSelected: (on) {
-                if (tags.contains(anno)) {
-                  logInfo("tags: removing $anno");
-                  setState(() { tags.remove(anno); });
-                } else {
-                  logInfo("tags: adding $anno");
-                  setState(() { tags.add(anno); });
-                }
-                logInfo("tags: tags is $tags");
-              });
-          tagButtons.add(chip);
-        }
+                label: Text(anno.label),
+                selected:(tags.contains((anno))),
+                onSelected: (on) {
+                  if (tags.contains(anno)) {
+                    logInfo("tags: removing $anno");
+                    setState(() { tags.remove(anno); });
+                  } else {
+                    logInfo("tags: adding $anno");
+                    setState(() { tags.add(anno); });
+                  }
+                  logInfo("tags: tags is $tags");
+                });
+            tagButtons.add(chip);
+          }
 
-        ChoiceChip makeSeverityChip(val, unicode) {
-          return ChoiceChip(
-            labelStyle: TextTheme.of(context).titleLarge,
-            showCheckmark: false,
-            selected: severity == val,
-            onSelected: (sel) { setState((){ severity = val; }); },
-            label:Text(String.fromCharCode(unicode)),
-          );
-        }
+          ChoiceChip makeSeverityChip(val, unicode) {
+            return ChoiceChip(
+              labelStyle: TextTheme.of(context).titleLarge,
+              showCheckmark: false,
+              selected: severity == val,
+              onSelected: (sel) { setState((){ severity = val; }); },
+              label:Text(String.fromCharCode(unicode)),
+            );
+          }
 
-        return AlertDialog(
-          scrollable: true,
-          title: const Text("Was ist hier?"),
-          content: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Wrap(
-                crossAxisAlignment: WrapCrossAlignment.start,
-                spacing:5,
-                runSpacing: 0,
-                alignment: WrapAlignment.start,
-                children: tagButtons
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top:10),
-                child: Text("Wie schlimm?",
-                  style: TextTheme.of(context).titleSmall,
+/*  This is the content for the former adaptive dialog
+          return AlertDialog(
+            scrollable: true,
+            title: const Text("Was ist hier?"),
+            content:
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Wrap(
+                    crossAxisAlignment: WrapCrossAlignment.start,
+                    spacing:5,
+                    runSpacing: 0,
+                    alignment: WrapAlignment.start,
+                    children: tagButtons
                 ),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  makeSeverityChip(0, 128528),
-                  makeSeverityChip(25, 128533),
-                  makeSeverityChip(50, 128530),
-                  makeSeverityChip(75, 128534),
-                  makeSeverityChip(100, 128545)
-                ],
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top:10),
-                child: Text("Beschreibung / Kommentar",
-                  style: TextTheme.of(context).titleSmall,
+                Padding(
+                  padding: const EdgeInsets.only(top:10),
+                  child: Text("Wie schlimm?",
+                    style: TextTheme.of(context).titleSmall,
+                  ),
                 ),
-              ),
-              CupertinoTextField(
-                controller: textEditingController,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    makeSeverityChip(0, 128528),
+                    makeSeverityChip(25, 128533),
+                    makeSeverityChip(50, 128530),
+                    makeSeverityChip(75, 128534),
+                    makeSeverityChip(100, 128545)
+                  ],
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top:10),
+                  child: Text("Beschreibung / Kommentar",
+                    style: TextTheme.of(context).titleSmall,
+                  ),
+                ),
+                CupertinoTextField(
+                  controller: textEditingController,
 /*                decoration: const InputDecoration(
                   prefixIcon: Icon(Icons.warning),
                   labelText: 'Beschreibung',
@@ -277,40 +290,125 @@ class RecordScreenState extends State<RecordScreen> {
                 ),
   */            ),
 
-            ],
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('Abbrechen'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              }
+              ],
             ),
-            TextButton(
-              child: const Text('Speichern und weiter'),
-              onPressed: () {
-                RunningRide? ride = Provider.of<Rides>(context, listen: false).currentRide;
-                if (ride != null) {
-                  Location? location = ride.locations.lastOrNull;
-                  if (location != null) {
-                    ride_annotation.Annotation annotation = ride_annotation
-                        .Annotation(location: location,
-                        severity: severity,
-                        tags: tags,
-                        comment: textEditingController.text);
-                    ride.addAnnotation(annotation);
-                  } else {
-                    logErr("Could not add annotation because there's no last location!");
+            actions: <Widget>[
+              OutlinedButton(
+                  child: const Text('Abbrechen'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
                   }
-                } else {
-                  logErr("Could not add annotation because there's no current ride!");
-                }
-                Navigator.of(context).pop();
-              }
+              ),
+              OutlinedButton(
+                  child: const Text('Speichern und weiter'),
+                  onPressed: () {
+                    RunningRide? ride = Provider.of<Rides>(context, listen: false).currentRide;
+                    if (ride != null) {
+                      Location? location = ride.locations.lastOrNull;
+                      if (location != null) {
+                        ride_annotation.Annotation annotation = ride_annotation
+                            .Annotation(location: location,
+                            severity: severity,
+                            tags: tags,
+                            comment: textEditingController.text);
+                        ride.addAnnotation(annotation);
+                      } else {
+                        logErr("Could not add annotation because there's no last location!");
+                      }
+                    } else {
+                      logErr("Could not add annotation because there's no current ride!");
+                    }
+                    Navigator.of(context).pop();
+                  }
+              ),
+            ],
+          );
+
+ */
+          return SingleChildScrollView(
+            child:
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("Was ist hier?", style: TextTheme.of(context).titleSmall),
+                  Wrap(
+                      crossAxisAlignment: WrapCrossAlignment.start,
+                      spacing:5,
+                      runSpacing: 0,
+                      alignment: WrapAlignment.start,
+                      children: tagButtons
+                  ),
+                  SizedBox(height:10),
+                  Text("Beschreibung (optional)", style: TextTheme.of(context).titleSmall),
+                  SizedBox(height:5),
+                  CupertinoTextField(
+                    controller: textEditingController,
+                    /*                decoration: const InputDecoration(
+                    prefixIcon: Icon(Icons.warning),
+                    labelText: 'Beschreibung',
+                    helperText: 'Kurze Beschreibung (optional)',
+                    filled: true,
+                  ),
+                */            ),
+                  SizedBox(height:10),
+                  Text("Wie schlimm?", style: TextTheme.of(context).titleSmall),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      makeSeverityChip(0, 128528),
+                      makeSeverityChip(25, 128533),
+                      makeSeverityChip(50, 128530),
+                      makeSeverityChip(75, 128534),
+                      makeSeverityChip(100, 128545)
+                    ],
+                  ),
+                  SizedBox(height:10),
+                  Row(
+                    children:[
+                      Spacer(flex: 1),
+                      OutlinedButton(
+                          style: ButtonStyle(backgroundColor: WidgetStatePropertyAll(Colors.transparent)),
+                          child: const Text('Abbrechen'),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          }
+                      ),
+                      Spacer(flex: 1),
+                      OutlinedButton(
+                          child: const Text('Speichern und weiter'),
+                          onPressed: () {
+                            RunningRide? ride = Provider.of<Rides>(context, listen: false).currentRide;
+                            if (ride != null) {
+                              Location? location = ride.locations.lastOrNull;
+                              if (location != null) {
+                                ride_annotation.Annotation annotation = ride_annotation
+                                    .Annotation(location: location,
+                                    severity: severity,
+                                    tags: tags,
+                                    comment: textEditingController.text);
+                                ride.addAnnotation(annotation);
+                              } else {
+                                logErr("Could not add annotation because there's no last location!");
+                              }
+                            } else {
+                              logErr("Could not add annotation because there's no current ride!");
+                            }
+                            Navigator.of(context).pop();
+                          }
+                      ),
+                      Spacer(flex: 1),
+                    ],
+                  ),
+                  SizedBox(height:10),
+                ],
+              ),
             ),
-          ],
-        );
-      }
+
+          );
+
+        }
     );
   }
 }

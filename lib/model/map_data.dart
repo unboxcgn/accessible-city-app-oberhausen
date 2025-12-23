@@ -24,22 +24,31 @@ class MapData extends ChangeNotifier {
   String? _mapResourcesPath;
 
   Future<void> initialize() async {
+    _sharedPrefs ??= await SharedPreferences.getInstance();
     _mapResourcesPath ??= (await getApplicationSupportDirectory()).path;
     logInfo('MapData: initialize mapResources is ${_mapResourcesPath!}');
-    _sharedPrefs ??= await SharedPreferences.getInstance();
 
     await _loadVectorMapFromAssets("cologne");
     await _loadVectorMapFromAssets("oberhausen");
 
-    bool? styleLoaded = _sharedPrefs!.getBool("map_style_loaded");
+    bool styleLoaded = _sharedPrefs!.getBool("map_style_loaded") ?? false;
+    String? oldMapResourcesPath = _sharedPrefs!.getString("map_resources_path");
+    if (oldMapResourcesPath == null) { //no old map resources path
+      styleLoaded = false;
+    } else if (oldMapResourcesPath != _mapResourcesPath) { //map resources path has changed -> need to rebuild style
+      styleLoaded = false;
+    }
+
     logInfo('MapData: styleLoaded is $styleLoaded');
-    if ((styleLoaded == null) || (!(styleLoaded))) {
+    if (!styleLoaded) {
       logInfo("MapData: loading font and style");
       _loadStyleData();
       _sharedPrefs!.setBool("map_style_loaded", true);
+      _sharedPrefs!.setString("map_resources_path", _mapResourcesPath!);
     } else {
       logInfo("MapData: font and style already loaded");
     }
+
   }
 
   void resetAssets() {
@@ -155,9 +164,9 @@ class MapData extends ChangeNotifier {
   Future<void> _unzipAssetToMapDir(String assetName) async {
     assert (_mapResourcesPath != null, "MapData: not initialized!");
     ByteData value = await rootBundle.load('assets/$assetName');
-    Uint8List zipfile = value.buffer.asUint8List(
+    Uint8List zipFile = value.buffer.asUint8List(
       value.offsetInBytes, value.lengthInBytes);
-    InputStream ifs = InputStream(zipfile);
+    InputStream ifs = InputStream(zipFile);
     final archive = ZipDecoder().decodeBuffer(ifs);
     // Extract the contents of the Zip archive to disk.
     for (final file in archive) {

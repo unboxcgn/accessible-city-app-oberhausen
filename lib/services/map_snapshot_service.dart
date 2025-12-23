@@ -115,20 +115,18 @@ class MapSnapshotService {
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         // Removes the debug banner in the corner
-        home: Expanded(
-          child: FlutterMap(
-            mapController: controller,
-            options: MapOptions(
-              initialCameraFit: CameraFit.bounds(bounds: bounds, padding: EdgeInsets.all(padding.toDouble())),
-            ),
-            children: [
-              VectorTileLayer(
-                theme: theme,
-                tileProviders: TileProviders(tileProviders),
-              ),
-              userRoute
-            ],
+        home: FlutterMap(
+          mapController: controller,
+          options: MapOptions(
+            initialCameraFit: CameraFit.bounds(bounds: bounds, padding: EdgeInsets.all(padding.toDouble())),
           ),
+          children: [
+            VectorTileLayer(
+              theme: theme,
+              tileProviders: TileProviders(tileProviders),
+            ),
+            userRoute
+          ],
         ),
       ),
     );
@@ -158,18 +156,18 @@ class MapSnapshotService {
     final pipelineOwner = PipelineOwner();
     final buildOwner = BuildOwner(focusManager: FocusManager());
 
-    pipelineOwner.rootNode = renderView;
-    renderView.prepareInitialFrame();
-    // Attach the widget's render object to the render tree
-    final rootElement = RenderObjectToWidgetAdapter<RenderBox>(
+    try {
+      pipelineOwner.rootNode = renderView;
+      renderView.prepareInitialFrame();
+      // Attach the widget's render object to the render tree
+      final rootElement = RenderObjectToWidgetAdapter<RenderBox>(
         container: repaintBoundary,
         child: Directionality(
           textDirection: TextDirection.ltr,
           child: map,
         )).attachToRenderTree(buildOwner);
-    buildOwner.buildScope(rootElement);
+      buildOwner.buildScope(rootElement);
 
-    try {
       // Do some redraws to let the map finish rendering. Seems to need multiple repaints.
       // TODO: Check if it is possible to determine if the map has finished
       void redraw() {
