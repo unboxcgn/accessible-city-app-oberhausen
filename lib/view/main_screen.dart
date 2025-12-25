@@ -1,4 +1,5 @@
 import 'package:accessiblecity/main.dart';
+import 'package:accessiblecity/model/running_ride.dart';
 
 import 'no_rides_pane.dart';
 import 'rides_pane.dart';
@@ -23,7 +24,7 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
 
-  void _startRecording(BuildContext ctx) {
+  void _startRecording(BuildContext context) {
     Provider.of<Rides>(context, listen: false).startRide().then((ok) {
       if ((context.mounted) && (!ok)) {
         showAdaptiveDialog(context: context, builder: startRideFailedAlert);
@@ -33,10 +34,9 @@ class _MainScreenState extends State<MainScreen> {
   }
   @override
   Widget build(BuildContext context) {
-
-    bool haveCurrentRide = (Provider.of<Rides>(context).currentRide != null);
-    if (haveCurrentRide) {
-      return const RecordScreen();
+    RunningRide? currentRide = Provider.of<Rides>(context).currentRide;
+    if (currentRide != null) {
+      return RecordScreen(ride: currentRide);
     }
     bool havePastRide = (Provider.of<Rides>(context).pastRides.isNotEmpty);
 

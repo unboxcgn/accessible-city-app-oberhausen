@@ -107,7 +107,7 @@ class MyAppState extends State<MyApp> {
             bodySmall: TextStyle(fontFamily: 'InclusiveSans', fontSize: 14, fontWeight: FontWeight.w400, height: 1.2),
           ),
           colorScheme:
-            ColorScheme(brightness: Brightness.light,
+            const ColorScheme(brightness: Brightness.light,
                 primary: Color(0xffB4AAEF),
                 primaryContainer: Color(0xffE6DEFF),
                 onPrimary: Color(0xff000000),
@@ -139,22 +139,22 @@ class MyAppState extends State<MyApp> {
             style: OutlinedButton.styleFrom(
               foregroundColor: Colors.black,
               disabledBackgroundColor: Colors.transparent,
-              backgroundColor: Color(0xff46DA67),
+              backgroundColor: const Color(0xff46DA67),
               side: const BorderSide(
                 color: Colors.black, // Border color
                 width: 3, // Border width
               ),
             ),
           ),
-          textButtonTheme: TextButtonThemeData(
+          textButtonTheme: const TextButtonThemeData(
             style: ButtonStyle(
               foregroundColor: WidgetStatePropertyAll(Colors.black)
             ),
           ),
-          appBarTheme: AppBarThemeData(
+          appBarTheme: const AppBarThemeData(
             centerTitle: true,
           ),
-          bottomAppBarTheme: BottomAppBarThemeData(
+          bottomAppBarTheme: const BottomAppBarThemeData(
             color: Colors.transparent,
           ),
 

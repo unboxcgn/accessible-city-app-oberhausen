@@ -253,7 +253,6 @@ class FinishedRide extends ChangeNotifier {
   }
 
   Future<void> _dbUpsertRide({bool updateData = true}) async {
-    logInfo("upserting ride building map");
     final map = {
       'uuid': _uuid,
       'name': _name,
@@ -285,7 +284,6 @@ class FinishedRide extends ChangeNotifier {
     if (haveId) {
       map['id'] = _dbId;
     }
-    logInfo("upserting ride with map $map}");
     int id = await _db.insert(
       'ride',
       map,

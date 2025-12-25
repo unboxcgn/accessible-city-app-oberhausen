@@ -182,8 +182,8 @@ class MapSnapshotService {
           ..flushPaint();
       }
       redraw();
-      int numRedraws = 10;
-      Duration wait = const Duration(milliseconds: 100);
+      int numRedraws = 5;
+      Duration wait = const Duration(milliseconds: 200);
       for (int i = 0; i < numRedraws; i++) {
         await Future.delayed(wait);
         redraw();

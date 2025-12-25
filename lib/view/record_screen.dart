@@ -18,7 +18,9 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/cupertino.dart';
 
 class RecordScreen extends StatefulWidget {
-  const RecordScreen({super.key});
+  final RunningRide ride;
+
+  const RecordScreen({super.key, required this.ride});
 
   @override
   State<RecordScreen> createState() => RecordScreenState();
@@ -30,15 +32,43 @@ class RecordScreenState extends State<RecordScreen> {
   final MapData _mapData = MapData();
   bool _trackUserLocation = true;
   UserLocation? _lastUserLocation;
-  static GlobalKey mapContainer = GlobalKey();
+  final List<LatLng> _routeSoFar = [];
+  Line? _lineSoFar;
 
   @override
   void initState() {
     super.initState();
+    widget.ride.addListener(_checkRideUpdate);
     SensorService().checkPermissions();
   }
 
-  void _finishRide(context) async {
+  @override dispose() {
+    widget.ride.removeListener(_checkRideUpdate);
+    super.dispose();
+  }
+
+  _checkRideUpdate() async {
+    logInfo("ride update");
+    List<Location> locations = widget.ride.locations;
+    while(_routeSoFar.length < locations.length) {
+      Location loc = locations[_routeSoFar.length];
+      _routeSoFar.add(LatLng(loc.latitude, loc.longitude));
+    }
+    final controller = await _controllerCompleter.future;
+    if (_lineSoFar != null) {
+      controller.removeLine(_lineSoFar!);
+    }
+    _lineSoFar = await controller.addLine(
+        LineOptions(
+              lineColor: "#ff0000",
+              lineWidth: 5,
+              lineJoin: "round", //"butt" (default), "round" or "square"
+              geometry: _routeSoFar
+        )
+    );
+  }
+
+  _finishRide(context) async {
     Provider.of<Rides>(context, listen: false).finishCurrentRide();
   }
 
@@ -48,104 +78,100 @@ class RecordScreenState extends State<RecordScreen> {
     String contents = file.readAsStringSync();
     logInfo("MAPISSUE: Style path expected at ${_mapData.styleJsonPath} len ${file.lengthSync()} contents $contents");
 
+
     return Scaffold(
-/*      appBar: AppBar(
-        title: const Text(Constants.recording),
-      ),
-*/
-      body: Center(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children:[
-            Expanded(
-              child: RepaintBoundary (
-                key: mapContainer,
-                child:MapLibreMap(
-                  styleString: _mapData.styleJsonPath,
-                  onMapCreated: _mapCreated,
-                  onUserLocationUpdated: _userLocationUpdated,
-                  onStyleLoadedCallback: _styleLoaded,
-                  initialCameraPosition: const CameraPosition(target: LatLng(50.9365, 6.9398), zoom: 16.0),
-                  trackCameraPosition: false,
-                  zoomGesturesEnabled: true,
-                  rotateGesturesEnabled: true,
-                  dragEnabled: false,
-                  myLocationEnabled: true,
-                  compassEnabled: true,
-                  myLocationTrackingMode: MyLocationTrackingMode.none,
-                  myLocationRenderMode: MyLocationRenderMode.normal,
-                  doubleClickZoomEnabled: false,
-                  scrollGesturesEnabled: !_trackUserLocation,
-                  minMaxZoomPreference: const MinMaxZoomPreference(10,20),
+        body: Center(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children:[
+              Expanded(
+                child: RepaintBoundary (
+                  child:MapLibreMap(
+                    styleString: _mapData.styleJsonPath,
+                    onMapCreated: _mapCreated,
+                    onUserLocationUpdated: _userLocationUpdated,
+                    onStyleLoadedCallback: _styleLoaded,
+                    initialCameraPosition: const CameraPosition(target: LatLng(50.9365, 6.9398), zoom: 16.0),
+                    trackCameraPosition: false,
+                    zoomGesturesEnabled: true,
+                    rotateGesturesEnabled: true,
+                    dragEnabled: false,
+                    myLocationEnabled: true,
+                    compassEnabled: true,
+                    myLocationTrackingMode: MyLocationTrackingMode.none,
+                    myLocationRenderMode: MyLocationRenderMode.normal,
+                    doubleClickZoomEnabled: false,
+                    scrollGesturesEnabled: !_trackUserLocation,
+                    minMaxZoomPreference: const MinMaxZoomPreference(10,20),
+                  ),
                 ),
               ),
-            ),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: InkWell(
-                  child: Text(
-                      Constants.mapAttribution,
-                      style: Theme.of(context).textTheme.bodySmall),
-                  onDoubleTap: () => launchUrl(Uri.parse('https://openstreetmap.org/copyright'))
+              Align(
+                alignment: Alignment.centerLeft,
+                child: InkWell(
+                    child: Text(
+                        Constants.mapAttribution,
+                        style: Theme.of(context).textTheme.bodySmall),
+                    onDoubleTap: () => launchUrl(Uri.parse('https://openstreetmap.org/copyright'))
+                ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(bottom:20.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(2.0),
-                    child: TextButton(
-                        onPressed: _toggleLocationTracking,
-                        child: Column(
-                          children: [
-                            Icon(Icons.center_focus_strong, color: _trackUserLocation ? Theme.of(context).colorScheme.primary: Colors.grey),
-                            const Text(Constants.trackLocation),
-                          ],
-                        )
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(2.0),
-                    child: TextButton(
-                        onPressed: () {
-                          if (_lastUserLocation != null) {
-                            showModalBottomSheet(context: context,
-                              backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-                              isDismissible: false,
-                              builder: _annotationDialogBuilder,
-                            );
-//                              showAdaptiveDialog(context: context, builder: _annotationDialogBuilder);
-                          }
-                        },
-                        child: const Column(
-                          children: [
-                            Icon(Icons.comment),
-                            Text(Constants.annotation),
-                          ],
-                        )
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(2.0),
-                    child: TextButton(
-                        onPressed: () { _finishRide(context); },
-                        child: const Column(
+              Padding(
+                padding: const EdgeInsets.only(bottom:20.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(2.0),
+                      child: TextButton(
+                          onPressed: _toggleLocationTracking,
+                          child: Column(
                             children: [
-                              Icon(Icons.stop_circle),
-                              Text(Constants.endRecording),
-                            ]
-                        )
+                              Icon(Icons.center_focus_strong, color: _trackUserLocation ? Theme.of(context).colorScheme.primary: Colors.grey),
+                              const Text(Constants.trackLocation),
+                            ],
+                          )
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            )
-          ],
-        ),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+                    Padding(
+                      padding: const EdgeInsets.all(2.0),
+                      child: TextButton(
+                          onPressed: () {
+                            if (_lastUserLocation != null) {
+                              showModalBottomSheet(context: context,
+                                backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                                isDismissible: false,
+                                builder: _annotationDialogBuilder,
+                              );
+      //                              showAdaptiveDialog(context: context, builder: _annotationDialogBuilder);
+                            }
+                          },
+                          child: const Column(
+                            children: [
+                              Icon(Icons.comment),
+                              Text(Constants.annotation),
+                            ],
+                          )
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(2.0),
+                      child: TextButton(
+                          onPressed: () { _finishRide(context); },
+                          child: const Column(
+                              children: [
+                                Icon(Icons.stop_circle),
+                                Text(Constants.endRecording),
+                              ]
+                          )
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            ],
+          ),
+        ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 
@@ -340,9 +366,9 @@ class RecordScreenState extends State<RecordScreen> {
                       alignment: WrapAlignment.start,
                       children: tagButtons
                   ),
-                  SizedBox(height:10),
+                  const SizedBox(height:10),
                   Text("Beschreibung (optional)", style: TextTheme.of(context).titleSmall),
-                  SizedBox(height:5),
+                  const SizedBox(height:5),
                   CupertinoTextField(
                     controller: textEditingController,
                     /*                decoration: const InputDecoration(
@@ -352,7 +378,7 @@ class RecordScreenState extends State<RecordScreen> {
                     filled: true,
                   ),
                 */            ),
-                  SizedBox(height:10),
+                  const SizedBox(height:10),
                   Text("Wie schlimm?", style: TextTheme.of(context).titleSmall),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -364,44 +390,39 @@ class RecordScreenState extends State<RecordScreen> {
                       makeSeverityChip(100, 128545)
                     ],
                   ),
-                  SizedBox(height:10),
+                  const SizedBox(height:24),
                   Row(
                     children:[
-                      Spacer(flex: 1),
+                      const Spacer(flex: 1),
                       OutlinedButton(
-                          style: ButtonStyle(backgroundColor: WidgetStatePropertyAll(Colors.transparent)),
+                          style: const ButtonStyle(backgroundColor: WidgetStatePropertyAll(Colors.transparent)),
                           child: const Text('Abbrechen'),
                           onPressed: () {
                             Navigator.of(context).pop();
                           }
                       ),
-                      Spacer(flex: 1),
+                      const Spacer(flex: 1),
                       OutlinedButton(
                           child: const Text('Speichern und weiter'),
                           onPressed: () {
-                            RunningRide? ride = Provider.of<Rides>(context, listen: false).currentRide;
-                            if (ride != null) {
-                              Location? location = ride.locations.lastOrNull;
-                              if (location != null) {
-                                ride_annotation.Annotation annotation = ride_annotation
-                                    .Annotation(location: location,
-                                    severity: severity,
-                                    tags: tags,
-                                    comment: textEditingController.text);
-                                ride.addAnnotation(annotation);
-                              } else {
-                                logErr("Could not add annotation because there's no last location!");
-                              }
+                            Location? location = widget.ride.locations.lastOrNull;
+                            if (location != null) {
+                              ride_annotation.Annotation annotation = ride_annotation
+                                  .Annotation(location: location,
+                                  severity: severity,
+                                  tags: tags,
+                                  comment: textEditingController.text);
+                              widget.ride.addAnnotation(annotation);
                             } else {
-                              logErr("Could not add annotation because there's no current ride!");
+                              logErr("Could not add annotation because there's no last location!");
                             }
                             Navigator.of(context).pop();
                           }
                       ),
-                      Spacer(flex: 1),
+                      const Spacer(flex: 1),
                     ],
                   ),
-                  SizedBox(height:10),
+                  const SizedBox(height:10),
                 ],
               ),
             ),
