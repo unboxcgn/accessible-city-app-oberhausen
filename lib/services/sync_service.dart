@@ -1,3 +1,6 @@
+import 'package:flutter/services.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+
 import '../constants.dart';
 import '../logger.dart';
 import '../server.dart';
@@ -25,6 +28,7 @@ class SyncService {
   SyncService._internal();
 
   void addRide(FinishedRide ride) {
+    _getAppInfoString().then((s) {logInfo("build info: $s");});
     logInfo("SyncService addRide");
     if (_dirty(ride)) {
       logInfo("adding ride");
@@ -33,6 +37,33 @@ class SyncService {
     } else {
       logInfo("no need to add ride");
     }
+  }
+
+  Future<String> _getAppInfoString() async {
+    String s = "";
+    try {
+      final packageInfo = await PackageInfo.fromPlatform();
+      s = s + packageInfo.appName;
+      s = "$s version ${packageInfo.version} build ${packageInfo.buildNumber}";
+      if (Platform.isAndroid) {
+        s = "$s Android";
+      } else if (Platform.isIOS) {
+        s = "$s ios";
+      } else {
+        s = "$s other";
+      }
+      final json = await rootBundle.loadString('assets/buildinfo.json');
+      final entries = jsonDecode(json);
+      final buildDateString = entries['build_date'] as String?;
+      if (buildDateString != null) s = "$s date $buildDateString";
+      final buildHeadString = entries['build_head'] as String?;
+      if (buildHeadString != null) s = "$s head $buildHeadString";
+      final commitHashString = entries['commit_hash'] as String?;
+      if (commitHashString != null) s = "$s hash $commitHashString";
+    } catch (e) {
+      logErr("Could not get build info: $e");
+    }
+    return s;
   }
 
   void _restartTimerIfNeeded() {
@@ -131,6 +162,7 @@ class SyncService {
   Future<bool> _createRide(FinishedRide ride) async {
     logInfo("performing create");
     final ridedata = ride.toAnonymousJson(withLocations: true, withAnnotations: true);
+    ridedata['clientinfo'] = await _getAppInfoString();
     final ridedataJson = jsonEncode(ridedata);
     final signature = ride.sign(ridedataJson);
     final request = {

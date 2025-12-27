@@ -44,6 +44,10 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
+# This file should be rebuilt by the build pipeline - if not, there's a template for it
+
+/assets/buildinfo.json
+
 # Don't share keys in repos
 
 /lib/keys.dart

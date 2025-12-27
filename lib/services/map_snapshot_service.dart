@@ -92,6 +92,9 @@ class MapSnapshotService {
       bounds.south -= epsilon;
     }
 
+    //set up a completer to wait for onMapReady or timeout
+    Completer<bool> mapReadyCompleter = Completer();
+    
     // Set up map widget
     MapController controller = MapController();
     MediaQueryData mediaQueryData = MediaQueryData(size: logicalSize, devicePixelRatio: 1.0);
@@ -119,6 +122,7 @@ class MapSnapshotService {
           mapController: controller,
           options: MapOptions(
             initialCameraFit: CameraFit.bounds(bounds: bounds, padding: EdgeInsets.all(padding.toDouble())),
+            onMapReady: () { mapReadyCompleter.complete(true); },
           ),
           children: [
             VectorTileLayer(
@@ -152,7 +156,7 @@ class MapSnapshotService {
       ),
       view: PlatformDispatcher.instance.views.first,
     );
-
+    logInfo("made widget tree");
     final pipelineOwner = PipelineOwner();
     final buildOwner = BuildOwner(focusManager: FocusManager());
 
@@ -166,27 +170,30 @@ class MapSnapshotService {
           textDirection: TextDirection.ltr,
           child: map,
         )).attachToRenderTree(buildOwner);
+      logInfo("attached render view");
+
+      // Build and finalize the render tree
       buildOwner.buildScope(rootElement);
+      buildOwner.finalizeTree();
+      logInfo("did build owner stuff");
 
       // Do some redraws to let the map finish rendering. Seems to need multiple repaints.
       // TODO: Check if it is possible to determine if the map has finished
       void redraw() {
-        // Build and finalize the render tree
-        buildOwner
-          ..buildScope(rootElement)
-          ..finalizeTree();
         // Flush layout, compositing, and painting operations
-        pipelineOwner
-          ..flushLayout()
-          ..flushCompositingBits()
-          ..flushPaint();
+        pipelineOwner.flushLayout();
+        pipelineOwner.flushCompositingBits();
+        pipelineOwner.flushPaint();
       }
       redraw();
+      bool mapReadyOk = await mapReadyCompleter.future.timeout(const Duration(seconds: 5), onTimeout: () => false,);
+      logInfo("wait for map ready: $mapReadyOk");
       int numRedraws = 5;
       Duration wait = const Duration(milliseconds: 200);
       for (int i = 0; i < numRedraws; i++) {
         await Future.delayed(wait);
         redraw();
+        logInfo("did redraw iteration $i");
       }
 
       // Capture the image and convert it to byte data

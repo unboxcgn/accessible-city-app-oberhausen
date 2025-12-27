@@ -1,11 +1,20 @@
+/* This class is an alternative implementation of the record screen using
+flutter_map (plus plugins) with a dart-based software renderer instead of
+flutter_maplibre_gl, which uses hardware-accelerated native rendering.
+It is not used, not feature complete and not fast enough for production use
+
+It is kept here solely as a debugging aid for flutter_map based rendering,
+which is used for map snapshots in map_snapshot_service. As this service
+is more tedious to debug, this class may be used to get an idea of the
+rendering process.
+ */
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:ui' as ui;
 
 import 'package:accessiblecity/model/running_ride.dart';
 import 'package:accessiblecity/services/map_snapshot_service.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 
 import '../logger.dart';
@@ -30,7 +39,8 @@ import 'package:mbtiles/mbtiles.dart';
 import "package:latlong2/latlong.dart";
 
 class RecordScreenFM extends StatefulWidget {
-  const RecordScreenFM({super.key});
+  final RunningRide ride;
+  const RecordScreenFM({super.key, required this.ride});
 
   @override
   State<RecordScreenFM> createState() => RecordScreenStateFM();
@@ -61,30 +71,9 @@ class RecordScreenStateFM extends State<RecordScreenFM> {
 
 
   void _finishRide(context) async {
-    /* This is actually a workaround: flutter_maplibe_gl does not expose offscreen
-    rendering functions in its current form. We want some form of raster image
-    of the ride for the rides list view. So when finishing a ride, the map will
-    zoom out and take a screenshot when finishing.
-
-    This does not work for iOS. Need to find another way. All commented out but
-    RepaintBoundary left in for future experiments. If this approach does not
-    turn out successfully, the RepaintBoundary and all this code may go.
-*/
-    final mapContext = _mapContainer.currentContext;
     Uint8List pngBytes = Uint8List(0);
-
-    if (mapContext != null) {
-      final boundary = mapContext.findRenderObject() as RenderRepaintBoundary?;
-      if (boundary != null) {
-        final image = await boundary.toImage(pixelRatio: 1.0);
-        final ByteData? byteData = await image.toByteData(
-          format: ui.ImageByteFormat.png);
-        pngBytes = byteData!.buffer.asUint8List();
-      }
-    }
     Rides rides = Provider.of<Rides>(context, listen: false);
-    RunningRide ride = rides.currentRide!;
-    List<Location> locations = ride.locations;
+    List<Location> locations = widget.ride.locations;
     locations = [
       Location(latitude: 50.9365, longitude: 6.9398, accuracy: 0, altitude: 0, altitudeAccuracy: 0, heading: 0, headingAccuracy: 0, speed: 0, speedAccuracy: 0, timestamp: DateTime(2025)),
 //      Location(latitude: 50.9375, longitude: 6.9398, accuracy: 0, altitude: 0, altitudeAccuracy: 0, heading: 0, headingAccuracy: 0, speed: 0, speedAccuracy: 0, timestamp: DateTime(2025)),

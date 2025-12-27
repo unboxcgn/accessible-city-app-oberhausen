@@ -1,0 +1,11 @@
+name: build_info_generator
+description: Generate build info json as an asset transformer
+version: 1.0.0
+
+environment:
+  sdk: '>=3.3.4 <4.0.0'
+
+dependencies:
+
+dev_dependencies:
+  lints: ^6.0.0
