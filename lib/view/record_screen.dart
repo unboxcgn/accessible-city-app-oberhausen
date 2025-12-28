@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:accessiblecity/enums.dart';
 import 'package:accessiblecity/model/running_ride.dart';
@@ -74,104 +73,125 @@ class RecordScreenState extends State<RecordScreen> {
 
   @override
   Widget build(BuildContext context) {
-    File file = File(_mapData.styleJsonPath);
-    String contents = file.readAsStringSync();
-    logInfo("MAPISSUE: Style path expected at ${_mapData.styleJsonPath} len ${file.lengthSync()} contents $contents");
 
+    final Shadow attributionShadow = const BoxShadow(
+      color: Colors.white,
+      spreadRadius: 5.0,
+      blurRadius: 5.0,
+      offset: Offset(0,0)
+    );
+    final TextStyle attributionBaseStyle = Theme.of(context).textTheme.bodySmall ?? TextStyle();
+    final TextStyle attributionTextStyle = TextStyle(
+        fontFamily: attributionBaseStyle.fontFamily,
+        fontSize: attributionBaseStyle.fontSize,
+        color: Colors.black
+    );
+    final TextStyle attributionTextStrokeStyle = TextStyle(
+      fontFamily: attributionBaseStyle.fontFamily,
+      fontSize: attributionBaseStyle.fontSize,
+      foreground: Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 6
+        ..color = Colors.white,
+    );
+    (Theme.of(context).textTheme.bodySmall ?? TextStyle()).apply(fontWeightDelta: 300, shadows: [attributionShadow]);
+    final map =  MapLibreMap(
+      styleString: _mapData.styleJsonPath,
+      onMapCreated: _mapCreated,
+      onUserLocationUpdated: _userLocationUpdated,
+      onStyleLoadedCallback: _styleLoaded,
+      initialCameraPosition: const CameraPosition(target: LatLng(50.9365, 6.9398), zoom: 16.0),
+      trackCameraPosition: false,
+      zoomGesturesEnabled: true,
+      rotateGesturesEnabled: true,
+      dragEnabled: false,
+      myLocationEnabled: true,
+      compassEnabled: true,
+      myLocationTrackingMode: MyLocationTrackingMode.none,
+      myLocationRenderMode: MyLocationRenderMode.normal,
+      doubleClickZoomEnabled: false,
+      scrollGesturesEnabled: !_trackUserLocation,
+      minMaxZoomPreference: const MinMaxZoomPreference(10,20),
+    );
+    final overlay = Column(
+      mainAxisAlignment: MainAxisAlignment.end,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            GestureDetector(
+              onDoubleTap: () => launchUrl(Uri.parse('https://openstreetmap.org/copyright')),
+              child: Stack(
+                children: [
+                  Text(Constants.mapAttribution, style: attributionTextStrokeStyle),
+                  Text(Constants.mapAttribution, style: attributionTextStyle),
+                ],
+              ),
+            ),
+            const Spacer(flex: 1),
+            ElevatedButton(
+              onPressed: _toggleLocationTracking,
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Theme.of(context).colorScheme.onSecondary,
+                backgroundColor: _trackUserLocation ? Theme.of(context).colorScheme.secondary : Colors.white,
+                shape: const CircleBorder(),
+                padding: const EdgeInsetsGeometry.all(8),
+              ),
+
+              child: const Icon(Icons.center_focus_strong, size: 30),
+            ),
+          ],
+        ),
+        const SizedBox(height:5),
+        RideDashboard(ride: widget.ride),
+      ],
+    );
 
     return Scaffold(
-        body: Center(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children:[
-              Expanded(
-                child: RepaintBoundary (
-                  child:MapLibreMap(
-                    styleString: _mapData.styleJsonPath,
-                    onMapCreated: _mapCreated,
-                    onUserLocationUpdated: _userLocationUpdated,
-                    onStyleLoadedCallback: _styleLoaded,
-                    initialCameraPosition: const CameraPosition(target: LatLng(50.9365, 6.9398), zoom: 16.0),
-                    trackCameraPosition: false,
-                    zoomGesturesEnabled: true,
-                    rotateGesturesEnabled: true,
-                    dragEnabled: false,
-                    myLocationEnabled: true,
-                    compassEnabled: true,
-                    myLocationTrackingMode: MyLocationTrackingMode.none,
-                    myLocationRenderMode: MyLocationRenderMode.normal,
-                    doubleClickZoomEnabled: false,
-                    scrollGesturesEnabled: !_trackUserLocation,
-                    minMaxZoomPreference: const MinMaxZoomPreference(10,20),
-                  ),
-                ),
-              ),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: InkWell(
-                    child: Text(
-                        Constants.mapAttribution,
-                        style: Theme.of(context).textTheme.bodySmall),
-                    onDoubleTap: () => launchUrl(Uri.parse('https://openstreetmap.org/copyright'))
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(bottom:20.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      body: Column(
+          children:[
+            Expanded(
+              child: Stack(
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.all(2.0),
-                      child: TextButton(
-                          onPressed: _toggleLocationTracking,
-                          child: Column(
-                            children: [
-                              Icon(Icons.center_focus_strong, color: _trackUserLocation ? Theme.of(context).colorScheme.primary: Colors.grey),
-                              const Text(Constants.trackLocation),
-                            ],
-                          )
-                      ),
+                    map,
+                    Positioned(
+                      bottom: 10,
+                      left: 10,
+                      right: 10,
+                      child: overlay,
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(2.0),
-                      child: TextButton(
-                          onPressed: () {
-                            if (_lastUserLocation != null) {
-                              showModalBottomSheet(context: context,
-                                backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-                                isDismissible: false,
-                                builder: _annotationDialogBuilder,
-                              );
-      //                              showAdaptiveDialog(context: context, builder: _annotationDialogBuilder);
-                            }
-                          },
-                          child: const Column(
-                            children: [
-                              Icon(Icons.comment),
-                              Text(Constants.annotation),
-                            ],
-                          )
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(2.0),
-                      child: TextButton(
-                          onPressed: () { _finishRide(context); },
-                          child: const Column(
-                              children: [
-                                Icon(Icons.stop_circle),
-                                Text(Constants.endRecording),
-                              ]
-                          )
-                      ),
-                    ),
-                  ],
-                ),
-              )
-            ],
-          ),
-        ), // This trailing comma makes auto-formatting nicer for build methods.
+
+                  ]),
+            ),
+          ],
+        ),
+      bottomNavigationBar: BottomAppBar(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            OutlinedButton.icon(
+                onPressed: () {
+                  if (_lastUserLocation != null) {
+                    showModalBottomSheet(context: context,
+                      backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                      isDismissible: false,
+                      builder: _annotationDialogBuilder,
+                    );
+                    //                              showAdaptiveDialog(context: context, builder: _annotationDialogBuilder);
+                  }
+                },
+                icon: const Icon(Icons.comment),
+                label: const Text(Constants.annotation),
+            ),
+            OutlinedButton.icon(
+                onPressed: () { _finishRide(context); },
+                icon: const Icon(Icons.output_outlined),
+                label: const Text(Constants.endRecording),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -269,88 +289,6 @@ class RecordScreenState extends State<RecordScreen> {
             );
           }
 
-/*  This is the content for the former adaptive dialog
-          return AlertDialog(
-            scrollable: true,
-            title: const Text("Was ist hier?"),
-            content:
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Wrap(
-                    crossAxisAlignment: WrapCrossAlignment.start,
-                    spacing:5,
-                    runSpacing: 0,
-                    alignment: WrapAlignment.start,
-                    children: tagButtons
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top:10),
-                  child: Text("Wie schlimm?",
-                    style: TextTheme.of(context).titleSmall,
-                  ),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    makeSeverityChip(0, 128528),
-                    makeSeverityChip(25, 128533),
-                    makeSeverityChip(50, 128530),
-                    makeSeverityChip(75, 128534),
-                    makeSeverityChip(100, 128545)
-                  ],
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top:10),
-                  child: Text("Beschreibung / Kommentar",
-                    style: TextTheme.of(context).titleSmall,
-                  ),
-                ),
-                CupertinoTextField(
-                  controller: textEditingController,
-/*                decoration: const InputDecoration(
-                  prefixIcon: Icon(Icons.warning),
-                  labelText: 'Beschreibung',
-                  helperText: 'Kurze Beschreibung (optional)',
-                  filled: true,
-                ),
-  */            ),
-
-              ],
-            ),
-            actions: <Widget>[
-              OutlinedButton(
-                  child: const Text('Abbrechen'),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  }
-              ),
-              OutlinedButton(
-                  child: const Text('Speichern und weiter'),
-                  onPressed: () {
-                    RunningRide? ride = Provider.of<Rides>(context, listen: false).currentRide;
-                    if (ride != null) {
-                      Location? location = ride.locations.lastOrNull;
-                      if (location != null) {
-                        ride_annotation.Annotation annotation = ride_annotation
-                            .Annotation(location: location,
-                            severity: severity,
-                            tags: tags,
-                            comment: textEditingController.text);
-                        ride.addAnnotation(annotation);
-                      } else {
-                        logErr("Could not add annotation because there's no last location!");
-                      }
-                    } else {
-                      logErr("Could not add annotation because there's no current ride!");
-                    }
-                    Navigator.of(context).pop();
-                  }
-              ),
-            ],
-          );
-
- */
           return SingleChildScrollView(
             child:
             Padding(
@@ -430,6 +368,87 @@ class RecordScreenState extends State<RecordScreen> {
           );
 
         }
+    );
+  }
+}
+
+class RideDashboard extends StatefulWidget {
+  final RunningRide ride;
+
+  const RideDashboard({super.key, required this.ride});
+
+  @override
+  State<RideDashboard> createState() => _RideDashboardState();
+}
+
+class _RideDashboardState extends State<RideDashboard> {
+  bool _haveLocation = false;
+  double _rideDistanceM = 0;
+  Duration _rideDuration = const Duration();
+  double _currentSpeedKmh = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.ride.addListener(_checkRideUpdate);
+  }
+
+  @override dispose() {
+    widget.ride.removeListener(_checkRideUpdate);
+    super.dispose();
+  }
+
+  void _checkRideUpdate() {
+    Location? lastLocation = widget.ride.getLastLocation();
+    bool haveLocation = (lastLocation != null);
+    Duration rideDuration = Duration(seconds:widget.ride.durationS.toInt());
+    double rideDistanceM = widget.ride.totalDistanceM;
+    double currentSpeedKmh = (lastLocation?.speed ?? 0) / 3.6;
+    if (currentSpeedKmh < 0) currentSpeedKmh = 0;
+    setState(() {
+      _haveLocation = haveLocation;
+      _rideDuration = rideDuration;
+      _rideDistanceM = rideDistanceM;
+      _currentSpeedKmh = currentSpeedKmh;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    TextStyle bold = const TextStyle(fontWeight:FontWeight.bold);
+    List<Widget> contents = [];
+    if (_haveLocation) {
+      contents.add(const Icon(Icons.multiple_stop_outlined));
+      if (_rideDistanceM < 1000) {
+        contents.add(Text(" ${_rideDistanceM.toStringAsFixed(0)}", style: bold));
+        contents.add(const Text(" m"));
+      } else {
+        contents.add(Text(" ${(_rideDistanceM/1000).toStringAsFixed(1)}", style: bold));
+        contents.add(const Text(" km"));
+      }
+      contents.add(const Spacer());
+      contents.add(const Icon(Icons.multiple_stop_outlined));
+      contents.add(Text(" ${_rideDuration.inHours}", style: bold));
+      contents.add(const Text(" h"));
+      contents.add(Text(" ${_rideDuration.inMinutes.remainder(60).toString().padLeft(2,'0')}", style: bold));
+      contents.add(const Text(" m"));
+      contents.add(const Spacer());
+      contents.add(const Icon(Icons.speed_outlined));
+      contents.add(Text(" ${_currentSpeedKmh.toStringAsFixed(1)}", style: bold));
+      contents.add(const Text(" km/h"));
+    } else {
+      contents.add(const Text("Suche GPS..."));
+    }
+
+    return Card(
+      color: const Color(0xffffffff),
+      elevation: 0,
+      child: Padding(
+        padding: const EdgeInsetsGeometry.all(10),
+        child: Row(
+          children: contents,
+        )
+      ),
     );
   }
 }

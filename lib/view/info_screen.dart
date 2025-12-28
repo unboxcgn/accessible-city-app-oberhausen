@@ -68,33 +68,33 @@ class VersionInfo extends StatefulWidget {
 }
 
 class _VersionInfoState extends State<VersionInfo> {
-  String _appNameString = "";
+//  String _appNameString = "";
   String _versionString = "";
   String _buildString = "";
   String _buildDateString = "";
-  String _buildHeadString = "";
+//  String _buildHeadString = "";
   String _commitHashString = "";
 
   void _loadInfo() async {
     String buildDateString = "?";
-    String buildHeadString = "?";
+//    String buildHeadString = "?";
     String commitHashString = "?";
     try {
       final s = await rootBundle.loadString('assets/buildinfo.json');
       final entries = jsonDecode(s);
       buildDateString = entries['build_date'] as String;
-      buildHeadString = entries['build_head'] as String;
+//      buildHeadString = entries['build_head'] as String;
       commitHashString = entries['commit_hash'] as String;
     } catch (e) {
       logErr("Could not get build info: $e");
     }
     final packageInfo = await PackageInfo.fromPlatform();
     setState(() {
-      _appNameString = packageInfo.appName;
+//      _appNameString = packageInfo.appName;
       _versionString = packageInfo.version;
       _buildString = packageInfo.buildNumber;
       _buildDateString = buildDateString;
-      _buildHeadString = buildHeadString;
+//      _buildHeadString = buildHeadString;
       _commitHashString = commitHashString;
     });
   }
