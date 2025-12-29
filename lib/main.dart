@@ -78,7 +78,7 @@ class MyAppState extends State<MyApp> {
       contents = [const MaterialPage(child : FirstBootScreen())];
     } else {
       contents = [
-        MaterialPage(child : MainScreen(appState: this)),
+        MaterialPage(child : MainScreen(appState: this), canPop: false),
         if (_subpage == "info") const MaterialPage(child : InfoScreen()),
         if (_subpage == "settings") const MaterialPage(child : SettingsScreen()),
       ];
@@ -162,7 +162,8 @@ class MyAppState extends State<MyApp> {
 
         home: Navigator(
             pages: contents,
-            onDidRemovePage: _didRemovePage
+            onDidRemovePage: _didRemovePage,
+
         )
     );
   }

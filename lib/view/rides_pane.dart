@@ -213,7 +213,7 @@ class RideDigestView extends StatelessWidget {
     final durM = twoDigits(_ride.recordingDuration.inMinutes.remainder(60).abs());
     final durS = twoDigits(_ride.recordingDuration.inSeconds.remainder(60).abs());
     final dur = '$durH:$durM:$durS';
-    final title = (_ride.annotations.isNotEmpty) ? "${_ride.name} *" : _ride.name;
+    final title = _ride.name;
     return Card(
       key: Key(_ride.uuid),
       child: Padding (
