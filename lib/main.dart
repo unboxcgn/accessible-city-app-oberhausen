@@ -1,12 +1,14 @@
 import 'package:flutter/services.dart';
 
 import 'logger.dart';
+import 'model/running_ride.dart';
 import 'model/user.dart';
 import 'model/map_data.dart';
 import 'model/rides.dart';
 import 'view/first_boot_screen.dart';
 import 'view/main_screen.dart';
 import 'view/info_screen.dart';
+import 'view/record_screen.dart';
 import 'view/settings_screen.dart';
 
 import 'package:flutter/material.dart';
@@ -63,6 +65,8 @@ class MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
 
+    RunningRide? currentRide = Provider.of<Rides>(context).currentRide;
+
     List<MaterialPage> contents = [];
     if (!_initialized) {
       contents = [
@@ -81,7 +85,8 @@ class MyAppState extends State<MyApp> {
         MaterialPage(child : MainScreen(appState: this), canPop: false),
         if (_subpage == "info") const MaterialPage(child : InfoScreen()),
         if (_subpage == "settings") const MaterialPage(child : SettingsScreen()),
-      ];
+        if (currentRide != null) MaterialPage(child : RecordScreen(ride: currentRide), canPop: false),
+    ];
     }
 
     return MaterialApp(

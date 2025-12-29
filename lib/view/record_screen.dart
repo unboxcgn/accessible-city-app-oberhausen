@@ -33,6 +33,7 @@ class RecordScreenState extends State<RecordScreen> {
   UserLocation? _lastUserLocation;
   final List<LatLng> _routeSoFar = [];
   Line? _lineSoFar;
+  bool _styleIsLoaded = false;
 
   @override
   void initState() {
@@ -57,14 +58,16 @@ class RecordScreenState extends State<RecordScreen> {
     if (_lineSoFar != null) {
       controller.removeLine(_lineSoFar!);
     }
-    _lineSoFar = await controller.addLine(
-        LineOptions(
+    if (_styleIsLoaded) {
+      _lineSoFar = await controller.addLine(
+          LineOptions(
               lineColor: "#ff0000",
               lineWidth: 5,
               lineJoin: "round", //"butt" (default), "round" or "square"
               geometry: _routeSoFar
-        )
-    );
+          )
+      );
+    }
   }
 
   _finishRide(context) async {
@@ -225,6 +228,7 @@ class RecordScreenState extends State<RecordScreen> {
   }
 
   void _styleLoaded() async {
+    _styleIsLoaded = true;
     logInfo("MapData: style loaded!");
     final mapController = await _controllerCompleter.future;
     List<String> maps = _mapData.loadedMaps;

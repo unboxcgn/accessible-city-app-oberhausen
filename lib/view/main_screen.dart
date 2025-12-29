@@ -34,10 +34,6 @@ class _MainScreenState extends State<MainScreen> {
   }
   @override
   Widget build(BuildContext context) {
-    RunningRide? currentRide = Provider.of<Rides>(context).currentRide;
-    if (currentRide != null) {
-      return RecordScreen(ride: currentRide);
-    }
     bool havePastRide = (Provider.of<Rides>(context).pastRides.isNotEmpty);
 
     return Scaffold(
