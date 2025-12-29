@@ -74,13 +74,7 @@ class RecordScreenState extends State<RecordScreen> {
   @override
   Widget build(BuildContext context) {
 
-    final Shadow attributionShadow = const BoxShadow(
-      color: Colors.white,
-      spreadRadius: 5.0,
-      blurRadius: 5.0,
-      offset: Offset(0,0)
-    );
-    final TextStyle attributionBaseStyle = Theme.of(context).textTheme.bodySmall ?? TextStyle();
+    final TextStyle attributionBaseStyle = Theme.of(context).textTheme.bodySmall ?? const TextStyle();
     final TextStyle attributionTextStyle = TextStyle(
         fontFamily: attributionBaseStyle.fontFamily,
         fontSize: attributionBaseStyle.fontSize,
@@ -91,10 +85,9 @@ class RecordScreenState extends State<RecordScreen> {
       fontSize: attributionBaseStyle.fontSize,
       foreground: Paint()
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 6
+        ..strokeWidth = 5
         ..color = Colors.white,
     );
-    (Theme.of(context).textTheme.bodySmall ?? TextStyle()).apply(fontWeightDelta: 300, shadows: [attributionShadow]);
     final map =  MapLibreMap(
       styleString: _mapData.styleJsonPath,
       onMapCreated: _mapCreated,
@@ -382,10 +375,6 @@ class RideDashboard extends StatefulWidget {
 }
 
 class _RideDashboardState extends State<RideDashboard> {
-  bool _haveLocation = false;
-  double _rideDistanceM = 0;
-  Duration _rideDuration = const Duration();
-  double _currentSpeedKmh = 0;
 
   @override
   void initState() {
@@ -399,45 +388,39 @@ class _RideDashboardState extends State<RideDashboard> {
   }
 
   void _checkRideUpdate() {
-    Location? lastLocation = widget.ride.getLastLocation();
-    bool haveLocation = (lastLocation != null);
-    Duration rideDuration = Duration(seconds:widget.ride.durationS.toInt());
-    double rideDistanceM = widget.ride.totalDistanceM;
-    double currentSpeedKmh = (lastLocation?.speed ?? 0) / 3.6;
-    if (currentSpeedKmh < 0) currentSpeedKmh = 0;
-    setState(() {
-      _haveLocation = haveLocation;
-      _rideDuration = rideDuration;
-      _rideDistanceM = rideDistanceM;
-      _currentSpeedKmh = currentSpeedKmh;
-    });
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    TextStyle bold = const TextStyle(fontWeight:FontWeight.bold);
+    Location? lastLocation = widget.ride.getLastLocation();
     List<Widget> contents = [];
-    if (_haveLocation) {
+    if (lastLocation == null) {
+      contents.add(const Text("Suche GPS..."));
+    } else {
+      TextStyle bold = const TextStyle(fontWeight:FontWeight.bold);
+      Duration rideDuration = Duration(seconds:widget.ride.durationS.toInt());
+      double rideDistanceM = widget.ride.totalDistanceM;
+      double currentSpeedKmh = lastLocation.speed / 3.6;
+      if (currentSpeedKmh < 0) currentSpeedKmh = 0;
       contents.add(const Icon(Icons.multiple_stop_outlined));
-      if (_rideDistanceM < 1000) {
-        contents.add(Text(" ${_rideDistanceM.toStringAsFixed(0)}", style: bold));
+      if (rideDistanceM < 1000) {
+        contents.add(Text(" ${rideDistanceM.toStringAsFixed(0)}", style: bold));
         contents.add(const Text(" m"));
       } else {
-        contents.add(Text(" ${(_rideDistanceM/1000).toStringAsFixed(1)}", style: bold));
+        contents.add(Text(" ${(rideDistanceM/1000).toStringAsFixed(1)}", style: bold));
         contents.add(const Text(" km"));
       }
       contents.add(const Spacer());
       contents.add(const Icon(Icons.multiple_stop_outlined));
-      contents.add(Text(" ${_rideDuration.inHours}", style: bold));
+      contents.add(Text(" ${rideDuration.inHours}", style: bold));
       contents.add(const Text(" h"));
-      contents.add(Text(" ${_rideDuration.inMinutes.remainder(60).toString().padLeft(2,'0')}", style: bold));
+      contents.add(Text(" ${rideDuration.inMinutes.remainder(60).toString().padLeft(2,'0')}", style: bold));
       contents.add(const Text(" m"));
       contents.add(const Spacer());
       contents.add(const Icon(Icons.speed_outlined));
-      contents.add(Text(" ${_currentSpeedKmh.toStringAsFixed(1)}", style: bold));
+      contents.add(Text(" ${currentSpeedKmh.toStringAsFixed(1)}", style: bold));
       contents.add(const Text(" km/h"));
-    } else {
-      contents.add(const Text("Suche GPS..."));
     }
 
     return Card(
