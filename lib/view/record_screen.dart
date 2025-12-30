@@ -405,7 +405,7 @@ class _RideDashboardState extends State<RideDashboard> {
       TextStyle bold = const TextStyle(fontWeight:FontWeight.bold);
       Duration rideDuration = Duration(seconds:widget.ride.durationS.toInt());
       double rideDistanceM = widget.ride.totalDistanceM;
-      double currentSpeedKmh = lastLocation.speed / 3.6;
+      double currentSpeedKmh = lastLocation.speed * 3.6;
       if (currentSpeedKmh < 0) currentSpeedKmh = 0;
       contents.add(const Icon(Icons.multiple_stop_outlined));
       if (rideDistanceM < 1000) {
